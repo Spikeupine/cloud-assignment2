@@ -1,4 +1,4 @@
-package assignment_two
+package internal
 
 // API's
 // Link to the countries api
