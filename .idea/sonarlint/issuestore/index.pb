@@ -11,3 +11,5 @@ S
 go.mod,c\4\c47645c391ad0571c40779079363c9d48412e18b
 C
 internal/structs.go,1\9\194971cf392cc56690ab8f5e356c0731acd64868
+D
+api/restcountries.go,f\9\f996d2f50fb939c09ae87c9fdb0c42a15d6d059e
