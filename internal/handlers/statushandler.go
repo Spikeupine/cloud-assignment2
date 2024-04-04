@@ -14,6 +14,7 @@ var serviceStartTime = time.Now()
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	// Initialize status codes
 	countriesAPIstatus := getAPIStatus(internal.CountriesApi)
+	currencyAPIstatus := getAPIStatus(internal.CurrencyApi)
 
 	// Calculate uptime
 	uptime := int(time.Since(serviceStartTime).Seconds())
@@ -21,8 +22,8 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	// Prepare and send response
 	statusResponse := map[string]interface{}{
 		"countries_api":   countriesAPIstatus,
-		"meteo:api":       "<http status code for *Meteo API*>",
-		"currency_api":    "<http status code for *Currency API*>",
+		"meteo_api":       "<http status code for *Meteo API*>",
+		"currency_api":    currencyAPIstatus,
 		"notification_db": "<http status code for *Notification database*>",
 		"webhooks":        "<number of registered webhooks>",
 		"version":         "v1",
