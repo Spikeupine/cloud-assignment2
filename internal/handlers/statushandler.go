@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"assignment-2/internal"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -12,14 +13,14 @@ var serviceStartTime = time.Now()
 // StatusHandler gives us the status for each API, making it easier to see where something goes wrong
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	// Initialize status codes
-	// e.g countriesAPIstatus := getAPIStatus(internal.COUNTRIESAPI)
+	countriesAPIstatus := getAPIStatus(internal.CountriesApi)
 
 	// Calculate uptime
 	uptime := int(time.Since(serviceStartTime).Seconds())
 
 	// Prepare and send response
 	statusResponse := map[string]interface{}{
-		"countries_api":   "<http status code for *REST Countries API*>",
+		"countries_api":   countriesAPIstatus,
 		"meteo:api":       "<http status code for *Meteo API*>",
 		"currency_api":    "<http status code for *Currency API*>",
 		"notification_db": "<http status code for *Notification database*>",
