@@ -1,6 +1,8 @@
 package main
 
 import (
+	"assignment-2/api"
+	"assignment-2/internal"
 	"log"
 	"net/http"
 	"os"
@@ -17,6 +19,7 @@ func main() {
 	}
 	// Starts the server
 	log.Println("Starting server on port " + port + " ...")
+	http.HandleFunc(internal.DashboardsPath, api.HandleRestcountriesapi)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
