@@ -13,3 +13,9 @@ C
 internal/structs.go,1\9\194971cf392cc56690ab8f5e356c0731acd64868
 D
 api/restcountries.go,f\9\f996d2f50fb939c09ae87c9fdb0c42a15d6d059e
+R
+"internal/handlers/statushandler.go,c\2\c2432654921b1a6a5e1dc21b1c3a0a960316f405
+I
+api/restcountries_test.go,a\f\afe6b1cd5059f92ac02b762d1cd1f906db9917f4
+Y
+)internal/handlers/registrationsHandler.go,1\b\1b7d6e30faaa31288bae80ac06876669232945ce
