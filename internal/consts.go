@@ -24,7 +24,7 @@ const StatusPath = "/dashboard/v1/status/"
 const ContentTypeJson = "application/json"
 
 // const of string value Content type.
-const ApplicationJson = "Content type: "
+const ApplicationJson = "Content type"
 
 // Example of ISO code to be used to check if services that require ISO code is available.
 const IsoExample = "alpha?codes=no"

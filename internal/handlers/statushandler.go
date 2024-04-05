@@ -30,7 +30,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 		"uptime":          uptime,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
 	json.NewEncoder(w).Encode(statusResponse)
 }
 
