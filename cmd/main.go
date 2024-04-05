@@ -1,8 +1,8 @@
 package main
 
 import (
-	"assignment-2/api"
 	"assignment-2/internal"
+	"assignment-2/internal/handlers"
 	"cloud.google.com/go/firestore"
 	"context"
 	firebase "firebase.google.com/go"
@@ -65,7 +65,7 @@ func main() {
 
 	// Starts the server
 	log.Println("Starting server on port " + port + " ...")
-	http.HandleFunc(internal.DashboardsPath, api.HandleRestcountriesapi)
+	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
 	log.Printf("Firestore REST service listening on %s ...\n", addr)
 	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
 		panic(errServ)

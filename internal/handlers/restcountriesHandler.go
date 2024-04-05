@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"assignment-2/internal"
