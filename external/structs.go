@@ -20,14 +20,20 @@ type CountriesObject struct {
 		Common   string `json:"common"`
 		Official string `json:"official"`
 	} `json:"name"`
-	Cca2       string              `json:"cca2"`
-	Currencies map[string]Currency `json:"currencies"`
-	Area       float64             `json:"area"`
-	Population int                 `json:"population"`
-	Capital    []string            `json:"capital"`
+	Cca2       string                     `json:"cca2"`
+	Currencies map[string]CountryCurrency `json:"currencies"`
+	Area       float64                    `json:"area"`
+	Population int                        `json:"population"`
+	Capital    []string                   `json:"capital"`
 }
 
-type Currency struct {
+type CountryCurrency struct {
 	Name   string `json:"name"`
 	Symbol string `json:"symbol"`
+}
+
+type Currencies struct {
+	Result   string             `json:"result"`
+	BaseCode string             `json:"base_code"`
+	Rates    map[string]float64 `json:"rates"`
 }
