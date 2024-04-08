@@ -26,3 +26,25 @@ func MeteoStub() external.MeteoObject {
 	}
 	return meteoData
 }
+
+func CurrencyStub() external.CurrencyObject {
+	var currency external.CurrencyObject
+	currencyFile := readStubFile("./data/currencies.json")
+	err := json.Unmarshal(currencyFile, &currency)
+	if err != nil {
+		fmt.Printf("File parse error: %v\n", err)
+		os.Exit(1)
+	}
+	return currency
+}
+
+func CountryStub() external.CountriesObject {
+	var country external.CountriesObject
+	countryFile := readStubFile("./data/countriesAPI.json")
+	err := json.Unmarshal(countryFile, &country)
+	if err != nil {
+		fmt.Printf("File parse error: %v\n", err)
+		os.Exit(1)
+	}
+	return country
+}

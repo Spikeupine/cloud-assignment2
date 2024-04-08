@@ -32,7 +32,7 @@ type CountryCurrency struct {
 	Symbol string `json:"symbol"`
 }
 
-type Currencies struct {
+type CurrencyObject struct {
 	Result   string             `json:"result"`
 	BaseCode string             `json:"base_code"`
 	Rates    map[string]float64 `json:"rates"`
