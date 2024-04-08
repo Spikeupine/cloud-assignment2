@@ -28,7 +28,8 @@ func main() {
 	// Firebase initialisation
 	ctx = context.Background()
 
-	opt := option.WithCredentialsFile("../firebase_privatekey.json")
+	pathToCredentials := "./firebase_privatekey.json"
+	opt := option.WithCredentialsFile(pathToCredentials)
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Println(err)
@@ -66,6 +67,9 @@ func main() {
 	// Starts the server
 	log.Println("Starting server on port " + port + " ...")
 	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
+	http.HandleFunc(internal.RegistrationsPath, func(w http.ResponseWriter, r *http.Request) {
+		handlers.RegistrationsHandlerPost(client, w, r)
+	})
 	log.Printf("Firestore REST service listening on %s ...\n", addr)
 	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
 		panic(errServ)
