@@ -7,6 +7,8 @@ const CountriesApi = "http://129.241.150.113:8080/v3.1/"
 // Link to the currency api
 const CurrencyApi = "http://129.241.150.113:9090/currency/"
 
+const CountriesFields = "fields=name,cca2,capitalInfo,population,area,currencies"
+
 // The different paths that can be used by user.
 // Path to dashboards
 const DashboardsPath = "/dashboard/v1/dashboards/"
