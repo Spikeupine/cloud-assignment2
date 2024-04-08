@@ -10,7 +10,7 @@ import (
 // Start the server timer
 var serviceStartTime = time.Now()
 
-// StatusHandler gives us the status for each API, making it easier to see where something goes wrong
+// StatusHandler gives us the status for each API
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	// Initialize status codes
 	countriesAPIstatus := getAPIStatus(internal.CountriesApi)
@@ -35,7 +35,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(statusResponse)
 }
 
-// Just a function to reduce code duplication, making it more reusable for the API statuses
+// Function for reusable API statuses
 func getAPIStatus(apiURL string) int {
 	resp, err := http.Get(apiURL)
 	if err != nil {
