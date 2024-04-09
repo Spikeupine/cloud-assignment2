@@ -1,5 +1,10 @@
 package internal
 
+import (
+	"cloud.google.com/go/firestore"
+	"net/http"
+)
+
 // Struct for holding information about country from restcountries API.
 type RestCountriesStruct struct {
 	Name        string                  `json:"common"`
@@ -14,6 +19,14 @@ type RestCountriesStruct struct {
 type CurrencyInfo struct {
 	Name   string `json:"name"`
 	Symbol string `json:"symbol"`
+}
+
+type Basics struct {
+	ResponseWriter http.ResponseWriter
+	Request        *http.Request
+	Client         *firestore.Client
+	Endpoint       string
+	ID             string
 }
 
 // Request for an individual dashboard identified by its ID (same as the corresponding configuration ID)
