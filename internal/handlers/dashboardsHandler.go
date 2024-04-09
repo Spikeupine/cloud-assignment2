@@ -11,6 +11,7 @@ func DashboardsHandler() {
 
 }
 
+// TODO: change "client *http.Client" to "client *firestore.Client"
 func getDashboard(id string, client *http.Client) (internal.PopulatedDashboard, error) {
 	url := internal.DashboardsPath + id
 	response, err := client.Get(url)
