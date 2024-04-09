@@ -1,0 +1,38 @@
+{
+  "capitalInfo":{
+    "latlng":[
+      59.92,
+      10.75
+    ]
+  },
+  "name":{
+    "common":"Norway",
+    "official":"Kingdom of Norway",
+    "nativeName":{
+      "nno":{
+        "official":"Kongeriket Noreg",
+        "common":"Noreg"
+      },
+      "nob":{
+        "official":"Kongeriket Norge",
+        "common":"Norge"
+      },
+      "smi":{
+        "official":"Norgga gonagasriika",
+        "common":"Norgga"
+      }
+    }
+  },
+  "cca2":"NO",
+  "currencies":{
+    "NOK":{
+      "name":"Norwegian krone",
+      "symbol":"kr"
+    }
+  },
+  "capital":[
+    "Oslo"
+  ],
+  "area":323802.0,
+  "population":5379475
+}
