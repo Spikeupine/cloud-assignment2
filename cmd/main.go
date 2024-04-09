@@ -58,13 +58,16 @@ func main() {
 	//Gets the port from the environment. If empty, sets it to 8080 as default.
 	port := os.Getenv("PORT")
 	if port == "" {
-		log.Println("$PORT not set. Default: 8080")
 		port = "8080"
+		log.Println("$PORT not set. Default: " + port)
 	}
 	addr := ":" + port
 
+	// Register the routes and corresponding handlers, these are all the paths
+	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
+
 	// Starts the server
-	log.Println("Starting server on port " + port + " ...")
+	log.Println("Server starting on http://localhost:%s" + port + " ...")
 	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
 	log.Printf("Firestore REST service listening on %s ...\n", addr)
 	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
