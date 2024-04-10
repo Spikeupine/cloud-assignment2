@@ -63,6 +63,9 @@ func main() {
 	}
 	addr := ":" + port
 
+	// Register the routes and corresponding handlers
+	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
+
 	// Starts the server
 	log.Println("Starting server on port " + port + " ...")
 	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
