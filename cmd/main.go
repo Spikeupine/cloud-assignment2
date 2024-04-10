@@ -37,7 +37,7 @@ func main() {
 	log.Println("Starting server on port " + port + " ...")
 	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
 	http.HandleFunc(internal.RegistrationsPath, func(w http.ResponseWriter, r *http.Request) {
-		handlers.RegistrationsHandlerPost(client, w, r)
+		handlers.RegistrationsPostHandler(client, w, r)
 	})
 	log.Printf("Firestore REST service listening on %s ...\n", addr)
 	if errServ := http.ListenAndServe(addr, nil); errServ != nil {

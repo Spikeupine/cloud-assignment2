@@ -10,11 +10,11 @@ import (
 	"time"
 )
 
-// RegistrationsHandlerPost Handles calls to registrations path
+// RegistrationsPostHandler Handles calls to registrations path
 // and directs different http requests to methods made for them.
-func RegistrationsHandlerPost(client *firestore.Client, w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		err := postToRegistrations(client, w, r)
+func RegistrationsPostHandler(client *firestore.Client, w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		err := registerDashboard(client, w, r)
 		if err != nil {
 			http.Error(w, "Error posting to Registrations Handler: "+err.Error(), http.StatusInternalServerError)
 		}
@@ -23,7 +23,8 @@ func RegistrationsHandlerPost(client *firestore.Client, w http.ResponseWriter, r
 	}
 }
 
-func postToRegistrations(client *firestore.Client, w http.ResponseWriter, r *http.Request) error {
+// registerDashboard parses the json-body of the request and creates a registers a new dashboard from it
+func registerDashboard(client *firestore.Client, w http.ResponseWriter, r *http.Request) error {
 	ctx := context.Background()
 	var dashboard internal.RegisterRequest
 
@@ -38,7 +39,7 @@ func postToRegistrations(client *firestore.Client, w http.ResponseWriter, r *htt
 	}
 
 	// Parse the user's feature selections and create/update the dashboard in Firestore
-	response, err := CreateDashboard(ctx, client, dashboard)
+	response, err := uploadDashboard(ctx, client, dashboard)
 	if err != nil {
 		http.Error(w, "Failed to create dashboard: "+err.Error(), http.StatusInternalServerError)
 		return err
@@ -51,8 +52,8 @@ func postToRegistrations(client *firestore.Client, w http.ResponseWriter, r *htt
 	return nil
 }
 
-// CreateDashboard creates a new dashboard document in Firestore.
-func CreateDashboard(ctx context.Context, client *firestore.Client,
+// uploadDashboard uploads a dashboard to firestore
+func uploadDashboard(ctx context.Context, client *firestore.Client,
 	dashboard internal.RegisterRequest) (internal.RegistrationsResponse, error) {
 	id, _ := uuid.NewUUID()
 	_, err := client.Collection("dashboards").Doc(id.String()).Create(ctx, dashboard)
