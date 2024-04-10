@@ -2,30 +2,45 @@ package handlers
 
 import (
 	"assignment-2/internal"
+	"cloud.google.com/go/firestore"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
-func DashboardsHandler() {
+func DashboardsHandler(basics internal.Basics, client *firestore.Client) {
+	switch basics.Request.Method {
+	case http.MethodGet:
+		id := basics.ID
+		if len(id) < 1 {
+			http.Error(basics.ResponseWriter, "invalid ID", http.StatusBadRequest)
+			return
+		}
+
+		dashboard, err := getDashboard(id, client)
+		if err != nil {
+			http.Error(basics.ResponseWriter, "error retrieving dashboard: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		resp, err := json.Marshal(dashboard)
+		if err != nil {
+			http.Error(basics.ResponseWriter, "error encoding response: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		basics.ResponseWriter.Header().Set("Content-Type", "application/json")
+		basics.ResponseWriter.WriteHeader(http.StatusOK)
+		basics.ResponseWriter.Write(resp)
+	default:
+		http.Error(basics.ResponseWriter, "method not allowed", http.StatusMethodNotAllowed)
+	}
 
 }
 
-// TODO: change "client *http.Client" to "client *firestore.Client"
-func getDashboard(id string, client *http.Client) (internal.PopulatedDashboard, error) {
-	url := internal.DashboardsPath + id
-	response, err := client.Get(url)
-
-	if err != nil {
-		return internal.PopulatedDashboard{}, fmt.Errorf("Failed to fetch information: %v", err)
-	}
-	defer response.Body.Close()
-
+// getDashboard retrieves dashboard information.
+func getDashboard(id string, client *firestore.Client) (internal.PopulatedDashboard, error) {
 	var dashboard internal.PopulatedDashboard
-	err = json.NewDecoder(response.Body).Decode(&dashboard)
-	if err != nil {
-		return internal.PopulatedDashboard{}, fmt.Errorf("Failed to decode information: %v", err)
-	}
+
+	// Ignore binder and client for now.
 
 	return dashboard, nil
 }
