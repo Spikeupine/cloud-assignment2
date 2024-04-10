@@ -31,6 +31,16 @@ type Basics struct {
 	ID             string
 }
 
+type Status struct {
+	CountriesAPI   int    `json:"countries_api"`
+	MeteoAPI       int    `json:"meteo_api"`
+	CurrencyAPI    int    `json:"currency_api"`
+	NotificationDB int    `json:"notification_db"`
+	Webhooks       int    `json:"webhooks"`
+	Version        string `json:"version"`
+	Uptime         int64  `json:"uptime"`
+}
+
 // Request for an individual dashboard identified by its ID (same as the corresponding configuration ID)
 type PopulatedDashboard struct {
 	Country  string `json:"country"`

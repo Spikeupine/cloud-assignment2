@@ -28,7 +28,7 @@ func main() {
 	// Firebase initialisation
 	ctx = context.Background()
 
-	opt := option.WithCredentialsFile("../firebase_privatekey.json")
+	opt := option.WithCredentialsFile("./firebase_privatekey.json")
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Println(err)
@@ -63,7 +63,7 @@ func main() {
 	}
 	addr := ":" + port
 
-	// Register the routes and corresponding handlers, these are all the paths
+	// Register the routes and corresponding handlers
 	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
 
 	// Starts the server

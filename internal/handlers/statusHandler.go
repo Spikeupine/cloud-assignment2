@@ -12,35 +12,27 @@ var serviceStartTime = time.Now()
 
 // StatusHandler gives us the status for each API
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	// Initialize status codes
-	countriesAPIstatus := getAPIStatus(internal.CountriesApi)
-	currencyAPIstatus := getAPIStatus(internal.CurrencyApi)
-	meteoAPIstatus := getAPIStatus(internal.GetMeteoUrl(0, 0))
+	var response internal.Status
 
-	// Calculate uptime
-	uptime := int(time.Since(serviceStartTime).Seconds())
-
-	// Prepare and send response
-	statusResponse := map[string]interface{}{
-		"countries_api":   countriesAPIstatus,
-		"meteo_api":       meteoAPIstatus,
-		"currency_api":    currencyAPIstatus,
-		"notification_db": "<http status code for *Notification database*>",
-		"webhooks":        "<number of registered webhooks>",
-		"version":         "v1",
-		"uptime":          uptime,
-	}
+	// Retrieve the status of the APIs
+	response.CountriesAPI = getAPIStatus(internal.CountriesApi + internal.IsoExample)
+	response.MeteoAPI = getAPIStatus(internal.MeteoApi)
+	response.CurrencyAPI = getAPIStatus(internal.CurrencyApi + internal.IsoExample)
+	response.Uptime = int64(time.Since(serviceStartTime).Seconds())
 
 	w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
-	json.NewEncoder(w).Encode(statusResponse)
+	json.NewEncoder(w).Encode(response)
 }
 
 // Function for reusable API statuses
 func getAPIStatus(apiURL string) int {
+	// Send an HTTP GET request to the specified API URL.
 	resp, err := http.Get(apiURL)
 	if err != nil {
 		return http.StatusInternalServerError
 	}
+
+	// Close the response body to prevent resource leaks.
 	defer resp.Body.Close()
 
 	return resp.StatusCode
