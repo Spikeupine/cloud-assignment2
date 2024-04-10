@@ -24,11 +24,41 @@ var ct = 0
 
 // This is the start point of the entire service.
 func main() {
+	firebaseConnect()
+	//Gets the port from the environment. If empty, sets it to 8080 as default.
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Println("$PORT not set. Default: 8080")
+		port = "8080"
+	}
+	addr := ":" + port
 
+	// Starts the server
+	log.Println("Starting server on port " + port + " ...")
+	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
+	http.HandleFunc(internal.RegistrationsPath, func(w http.ResponseWriter, r *http.Request) {
+		handlers.RegistrationsPostHandler(client, w, r)
+	})
+	log.Printf("Firestore REST service listening on %s ...\n", addr)
+	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
+		panic(errServ)
+	}
+	defer func() {
+		fireBaseCloseConnection()
+	}()
+
+}
+
+func firebaseConnect() {
 	// Firebase initialisation
 	ctx = context.Background()
 
+<<<<<<< HEAD
 	opt := option.WithCredentialsFile("./firebase_privatekey.json")
+=======
+	pathToCredentials := "./firebase_privatekey.json"
+	opt := option.WithCredentialsFile(pathToCredentials)
+>>>>>>> 31-create-post-for-registrations
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Println(err)
@@ -46,6 +76,7 @@ func main() {
 		log.Println(err)
 		return
 	}
+<<<<<<< HEAD
 
 	// Close down client at the end of the function
 	defer func() {
@@ -74,4 +105,14 @@ func main() {
 		panic(errServ)
 	}
 
+=======
+}
+
+// fireBaseCloseConnection closes the connection to firebase
+func fireBaseCloseConnection() {
+	errClose := client.Close()
+	if errClose != nil {
+		log.Fatal("Closing of the Firebase client failed. Error:", errClose)
+	}
+>>>>>>> 31-create-post-for-registrations
 }
