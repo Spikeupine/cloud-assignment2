@@ -1,11 +1,13 @@
 package internal
 
 import (
+	"cloud.google.com/go/firestore"
 	"github.com/google/uuid"
+	"net/http"
 	"time"
 )
 
-// RestCountriesStruct Struct for holding information about country from restcountries API.
+// Struct for holding information about country from restcountries API.
 type RestCountriesStruct struct {
 	Name        string                  `json:"common"`
 	Iso         string                  `json:"cca2"`
@@ -40,4 +42,12 @@ type RegisterRequest struct {
 	Country  string `json:"country"`
 	IsoCode  string `json:"isoCode"`
 	Features Features
+}
+
+type Basics struct {
+	ResponseWriter http.ResponseWriter
+	Request        *http.Request
+	Client         *firestore.Client
+	Endpoint       string
+	ID             string
 }
