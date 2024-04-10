@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"assignment-2/internal"
+	"encoding/json"
 	"net/http"
 )
 
@@ -27,4 +28,16 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method '"+r.Method+"' not supported. Currently method '"+http.MethodPost+
 			"', '"+http.MethodDelete+"' and '"+http.MethodGet+"' is supported.", http.StatusNotImplemented)
 	}
+}
+
+func RegisterWebhook(w http.ResponseWriter, r *http.Request, collectionName string) {
+	//Initializes empty struct of webhook to populate
+	webhook := internal.Webhook{}
+
+	//Populates the webhook struct with content from body of response.
+	err := json.NewDecoder(r.Body).Decode(&webhook)
+	if err != nil {
+		http.Error(w, "Error in registration of webhook", http.StatusInternalServerError)
+	}
+	webhooks = append(webhooks, webhook)
 }
