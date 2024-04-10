@@ -15,9 +15,9 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	var response internal.Status
 
 	// Retrieve the status of the APIs
-	response.CountriesAPI = getAPIStatus(internal.CountriesApi)
+	response.CountriesAPI = getAPIStatus(internal.CountriesApi + internal.IsoExample)
 	response.MeteoAPI = getAPIStatus(internal.MeteoApi)
-	response.CurrencyAPI = getAPIStatus(internal.CurrencyApi)
+	response.CurrencyAPI = getAPIStatus(internal.CurrencyApi + internal.IsoExample)
 	response.Uptime = int64(time.Since(serviceStartTime).Seconds())
 
 	w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
