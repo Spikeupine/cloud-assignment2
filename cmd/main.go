@@ -68,7 +68,7 @@ func main() {
 	http.HandleFunc(internal.DashboardsPath, handlers.DashboardsHandler)
 
 	// Starts the server
-	log.Println("Server starting on http://localhost:%s" + port + " ...")
+	log.Println("Server starting on http://localhost:" + port + " ...")
 	log.Printf("Firestore REST service listening on %s ...\n", addr)
 	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
 		panic(errServ)
