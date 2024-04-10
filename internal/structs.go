@@ -1,6 +1,9 @@
 package internal
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 // RestCountriesStruct Struct for holding information about country from restcountries API.
 type RestCountriesStruct struct {
@@ -19,7 +22,7 @@ type CurrencyInfo struct {
 }
 
 type RegistrationsResponse struct {
-	Id         string
+	Id         uuid.UUID
 	LastChange time.Time
 }
 

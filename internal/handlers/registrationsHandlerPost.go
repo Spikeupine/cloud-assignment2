@@ -6,11 +6,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
-
-var registrationId int = 1
 
 // RegistrationsHandlerPost Handles calls to registrations path
 // and directs different http requests to methods made for them.
@@ -35,12 +34,12 @@ func postToRegistrations(client *firestore.Client, w http.ResponseWriter, r *htt
 	}
 
 	// Parse the user's feature selections and create/update the dashboard in Firestore
-	id, err := CreateDashboard(ctx, client, dashboard)
+	response, err := CreateDashboard(ctx, client, dashboard)
 	if err != nil {
 		http.Error(w, "Failed to create dashboard: "+err.Error(), http.StatusInternalServerError)
 		return err
 	}
-	fmt.Fprintf(w, "Created new dashboard with ID: %s\n", id)
+	fmt.Fprintf(w, "Created new dashboard with ID: %s\n", response.Id)
 
 	return nil
 }
@@ -48,12 +47,13 @@ func postToRegistrations(client *firestore.Client, w http.ResponseWriter, r *htt
 // CreateDashboard creates a new dashboard document in Firestore.
 func CreateDashboard(ctx context.Context, client *firestore.Client,
 	dashboard internal.RegisterRequest) (internal.RegistrationsResponse, error) {
-	docRef, _, err := client.Collection("dashboards").Add(ctx, dashboard)
+	id, _ := uuid.NewUUID()
+	_, err := client.Collection("dashboards").Doc(id.String()).Create(ctx, dashboard)
 	if err != nil {
 		return internal.RegistrationsResponse{}, err
 	}
 	registrationResponse := internal.RegistrationsResponse{
-		Id:         docRef.ID,
+		Id:         id,
 		LastChange: time.Now(),
 	}
 	return registrationResponse, nil

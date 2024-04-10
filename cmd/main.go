@@ -43,6 +43,9 @@ func main() {
 	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
 		panic(errServ)
 	}
+	defer func() {
+		fireBaseCloseConnection()
+	}()
 
 }
 
@@ -69,12 +72,12 @@ func firebaseConnect() {
 		log.Println(err)
 		return
 	}
+}
 
-	// Close down client at the end of the function
-	defer func() {
-		errClose := client.Close()
-		if errClose != nil {
-			log.Fatal("Closing of the Firebase client failed. Error:", errClose)
-		}
-	}()
+// fireBaseCloseConnection closes the connection to firebase
+func fireBaseCloseConnection() {
+	errClose := client.Close()
+	if errClose != nil {
+		log.Fatal("Closing of the Firebase client failed. Error:", errClose)
+	}
 }
