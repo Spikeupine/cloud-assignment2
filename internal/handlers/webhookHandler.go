@@ -45,11 +45,33 @@ func RegisterWebhook(w http.ResponseWriter, r *http.Request, collectionName stri
 
 // Gets the webhooks registered
 // Todo: Write method to a mathod that just returns one webhook based on imput.
-func GetWebhook(w http.ResponseWriter, r *http.Request, collectionName string) {
-	//Returns all webhooks for now
-	//todo: Handle the get for specific webhooks
+func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) internal.Webhook {
+	var webhookInQuestion internal.Webhook
+	for _, webhook := range webhooks {
+		if webhook.WebhookId == webhookID {
+			webhookInQuestion = webhook
+			return webhookInQuestion
+		}
+	}
+	return webhookInQuestion
+}
+
+func DeleteWebhook(w http.ResponseWriter, r *http.Request, webhookId string) {
+
+	for i, webhook := range webhooks {
+		if webhook.WebhookId == webhookId {
+			webhooks = append(webhooks[:i], webhooks[i+1:]...)
+			return
+		}
+	}
+
+}
+
+// Returns all webhooks for now
+func getAllWebhooks(w http.ResponseWriter, r *http.Request) []internal.Webhook {
 	err := json.NewEncoder(w).Encode(webhooks)
 	if err != nil {
 		http.Error(w, "Something went wrong when getting all webhooks "+err.Error(), http.StatusServiceUnavailable)
 	}
+	return webhooks
 }
