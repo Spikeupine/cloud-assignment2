@@ -27,7 +27,7 @@ func DashboardsHandler(basics internal.Basics, client *firestore.Client) {
 		}
 
 		// Encode the dashboard data as JSON
-		resp, err := json.Marshal(dashboard)
+		response, err := json.Marshal(dashboard)
 		if err != nil {
 			http.Error(basics.ResponseWriter, "error encoding response: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -36,7 +36,7 @@ func DashboardsHandler(basics internal.Basics, client *firestore.Client) {
 		// Set the content type and write the response
 		basics.ResponseWriter.Header().Set("Content-Type", "application/json")
 		basics.ResponseWriter.WriteHeader(http.StatusOK)
-		basics.ResponseWriter.Write(resp)
+		basics.ResponseWriter.Write(response)
 	default:
 		http.Error(basics.ResponseWriter, "method not allowed", http.StatusMethodNotAllowed)
 	}
