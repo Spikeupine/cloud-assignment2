@@ -53,12 +53,8 @@ func firebaseConnect() {
 	// Firebase initialisation
 	ctx = context.Background()
 
-<<<<<<< HEAD
-	opt := option.WithCredentialsFile("./firebase_privatekey.json")
-=======
 	pathToCredentials := "./firebase_privatekey.json"
 	opt := option.WithCredentialsFile(pathToCredentials)
->>>>>>> 31-create-post-for-registrations
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Println(err)
@@ -76,8 +72,6 @@ func firebaseConnect() {
 		log.Println(err)
 		return
 	}
-<<<<<<< HEAD
-
 	// Close down client at the end of the function
 	defer func() {
 		errClose := client.Close()
@@ -104,8 +98,6 @@ func firebaseConnect() {
 	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
 		panic(errServ)
 	}
-
-=======
 }
 
 // fireBaseCloseConnection closes the connection to firebase
@@ -114,5 +106,4 @@ func fireBaseCloseConnection() {
 	if errClose != nil {
 		log.Fatal("Closing of the Firebase client failed. Error:", errClose)
 	}
->>>>>>> 31-create-post-for-registrations
 }
