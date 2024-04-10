@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"assignment-2/internal"
+	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -30,6 +32,31 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// invokeWebhook invokes a POST request to the webhook at url with the body data
+func invokeWebhook(url string, data structs.WebhookInvocation) {
+
+	payload, err := json.Marshal(data)
+	if err != nil {
+		log.Printf(err.Error())
+		return
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		log.Printf(err.Error())
+		return
+	}
+
+	if resp != nil && resp.StatusCode != http.StatusOK {
+		log.Printf("unexpected status code: %d", resp.StatusCode)
+		return
+	}
+
+	if err := resp.Body.Close(); err != nil {
+		log.Printf(err.Error())
+	}
+}
+
 func RegisterWebhook(w http.ResponseWriter, r *http.Request, collectionName string) {
 	//Initializes empty struct of webhook to populate
 	webhook := internal.Webhook{}
@@ -40,4 +67,13 @@ func RegisterWebhook(w http.ResponseWriter, r *http.Request, collectionName stri
 		http.Error(w, "Error in registration of webhook", http.StatusInternalServerError)
 	}
 	webhooks = append(webhooks, webhook)
+}
+
+func GetWebhook(w http.ResponseWriter, r *http.Request, collectionName string) {
+	//Returns all webhooks for now
+	//todo: Handle the get for specific webhooks
+	err := json.NewEncoder(w).Encode(webhooks)
+	if err != nil {
+		http.Error(w, "Something went wrong when getting all webhooks "+err.Error(), http.StatusServiceUnavailable)
+	}
 }
