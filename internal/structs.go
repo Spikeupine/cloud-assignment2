@@ -3,7 +3,9 @@ package internal
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"github.com/google/uuid"
 	"net/http"
+	"time"
 )
 
 // Struct for holding information about country from restcountries API.
@@ -16,10 +18,31 @@ type RestCountriesStruct struct {
 	Coordinates []float64               `json:"latlng"`
 }
 
-// Defines a separate struct for currency information
+// CurrencyInfo Defines a separate struct for currency information
 type CurrencyInfo struct {
 	Name   string `json:"name"`
 	Symbol string `json:"symbol"`
+}
+
+type RegistrationsResponse struct {
+	Id         uuid.UUID
+	LastChange time.Time
+}
+
+type Features struct {
+	Temperature      bool     `json:"temperature,omitempty"`
+	Precipitation    bool     `json:"precipitation,omitempty"`
+	Capital          bool     `json:"capital,omitempty"`
+	Coordinates      bool     `json:"coordinates,omitempty"`
+	Population       bool     `json:"population,omitempty"`
+	Area             bool     `json:"area,omitempty"`
+	TargetCurrencies []string `json:"targetCurrencies,omitempty"`
+}
+
+type RegisterRequest struct {
+	Country  string `json:"country"`
+	IsoCode  string `json:"isoCode"`
+	Features Features
 }
 
 type Basics struct {
