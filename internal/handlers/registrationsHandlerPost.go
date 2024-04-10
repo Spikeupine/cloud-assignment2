@@ -5,7 +5,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"net/http"
 	"time"
@@ -33,13 +32,21 @@ func postToRegistrations(client *firestore.Client, w http.ResponseWriter, r *htt
 		http.Error(w, "Error parsing JSON: "+err.Error(), http.StatusBadRequest)
 	}
 
+	if dashboard.IsoCode == "" && dashboard.Country == "" {
+		http.Error(w, "ISO country code or country must be present: ", http.StatusBadRequest)
+		return nil
+	}
+
 	// Parse the user's feature selections and create/update the dashboard in Firestore
 	response, err := CreateDashboard(ctx, client, dashboard)
 	if err != nil {
 		http.Error(w, "Failed to create dashboard: "+err.Error(), http.StatusInternalServerError)
 		return err
 	}
-	fmt.Fprintf(w, "Created new dashboard with ID: %s\n", response.Id)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, "Couldn't parse response from database", http.StatusInternalServerError)
+	}
 
 	return nil
 }
