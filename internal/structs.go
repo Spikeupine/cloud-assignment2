@@ -1,6 +1,11 @@
 package internal
 
-//Struct for holding information about country from restcountries API.
+import (
+	"cloud.google.com/go/firestore"
+	"net/http"
+)
+
+// Struct for holding information about country from restcountries API.
 type RestCountriesStruct struct {
 	Name        string                  `json:"common"`
 	Iso         string                  `json:"cca2"`
@@ -14,4 +19,12 @@ type RestCountriesStruct struct {
 type CurrencyInfo struct {
 	Name   string `json:"name"`
 	Symbol string `json:"symbol"`
+}
+
+type Basics struct {
+	ResponseWriter http.ResponseWriter
+	Request        *http.Request
+	Client         *firestore.Client
+	Endpoint       string
+	ID             string
 }
