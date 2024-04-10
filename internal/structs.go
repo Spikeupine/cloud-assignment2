@@ -28,3 +28,23 @@ type Basics struct {
 	Endpoint       string
 	ID             string
 }
+
+// Webhook is used when we register webhooks for notifications endpoint
+type Webhook struct {
+	WebhookId string `json:"webhook_id,omitempty" firebase:"webhook_id,omitempty"`
+	Url       string `json:"url" firebase:"url"`
+	Event     string `json:"dashboard,omitempty" firebase:"dashboard"`
+}
+
+// WebhookResponse is used in response of the notifications endpoint
+type WebhookResponse struct {
+	WebhookId string `json:"webhook_id"`
+	Url       string `json:"url"`
+	Dashboard string `json:"dashboard"`
+}
+
+// WebhookInvocation is used when invoking a webhook
+type WebhookInvocation struct {
+	WebhookId string `json:"webhook_id"`
+	Dashboard string `json:"dashboard"`
+}
