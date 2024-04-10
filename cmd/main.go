@@ -52,7 +52,6 @@ func main() {
 func firebaseConnect() {
 	// Firebase initialisation
 	ctx = context.Background()
-
 	pathToCredentials := "./firebase_privatekey.json"
 	opt := option.WithCredentialsFile(pathToCredentials)
 	app, err := firebase.NewApp(ctx, nil, opt)
@@ -60,7 +59,6 @@ func firebaseConnect() {
 		log.Println(err)
 		return
 	}
-
 	// Instantiate client
 	client, err = app.Firestore(ctx)
 
@@ -71,32 +69,6 @@ func firebaseConnect() {
 	if err != nil {
 		log.Println(err)
 		return
-	}
-	// Close down client at the end of the function
-	defer func() {
-		errClose := client.Close()
-		if errClose != nil {
-			log.Fatal("Closing of the Firebase client failed. Error:", errClose)
-		}
-	}()
-
-	//Gets the port from the environment. If empty, sets it to 8080 as default.
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-		log.Println("$PORT not set. Default: " + port)
-	}
-	addr := ":" + port
-
-	// Register the routes and corresponding handlers
-	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
-	http.HandleFunc(internal.DashboardsPath, handlers.DashboardsHandler)
-
-	// Starts the server
-	log.Println("Server starting on http://localhost:" + port + " ...")
-	log.Printf("Firestore REST service listening on %s ...\n", addr)
-	if errServ := http.ListenAndServe(addr, nil); errServ != nil {
-		panic(errServ)
 	}
 }
 
