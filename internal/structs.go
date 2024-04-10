@@ -2,6 +2,7 @@ package internal
 
 import (
 	"cloud.google.com/go/firestore"
+	"context"
 	"net/http"
 )
 
@@ -25,6 +26,7 @@ type Basics struct {
 	ResponseWriter http.ResponseWriter
 	Request        *http.Request
 	Client         *firestore.Client
+	Ctx            context.Context
 	Endpoint       string
 	ID             string
 }
