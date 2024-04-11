@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	firebase "firebase.google.com/go"
+	"fmt"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
@@ -80,15 +81,20 @@ func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) intern
 	return webhookInQuestion
 }
 
-func DeleteWebhook(w http.ResponseWriter, r *http.Request, webhookId string) {
-
-	for i, webhook := range webhooks {
-		if webhook.WebhookId == webhookId {
-			webhooks = append(webhooks[:i], webhooks[i+1:]...)
-			return
-		}
+// Deletes document with id, doccumentID from the collection with the name and collectionName in the database
+func DeleteTheWebhook(collectionName, documentID string) (error, int) {
+	if client == nil {
+		return fmt.Errorf("firebase is not initialized"), http.StatusInternalServerError
 	}
 
+	// reference to the webhook document
+	docReference := client.Doc(collectionName + "/" + documentID)
+
+	// delete the webhook
+	if _, err := docReference.Delete(ctx); err != nil {
+		return err, http.StatusFailedDependency
+	}
+	return nil, 0
 }
 
 // Returns all webhooks for now
