@@ -9,19 +9,6 @@ import (
 	"time"
 )
 
-// RegistrationsPostHandler Handles calls to registrations path
-// and directs different http requests to methods made for them.
-func RegistrationsPostHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		err := registerDashboard(w, r)
-		if err != nil {
-			http.Error(w, "Error posting to Registrations Handler: "+err.Error(), http.StatusInternalServerError)
-		}
-	} else {
-		http.Error(w, "Error: This method is not supported. Please use POST", http.StatusMethodNotAllowed)
-	}
-}
-
 // registerDashboard parses the json-body of the request and creates a registers a new dashboard from it
 func registerDashboard(w http.ResponseWriter, r *http.Request) error {
 	var dashboard internal.RegisterRequest
