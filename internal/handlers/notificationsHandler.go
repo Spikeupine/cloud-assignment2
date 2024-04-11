@@ -77,3 +77,34 @@ func DeleteWebhook(w http.ResponseWriter, r *http.Request, collectionName string
 	http.Error(w, "Webhook '"+webhookId+"' was deleted.", http.StatusOK)
 }
 
+// GetWebhooks is the http.GET method that either returns all webhooks if nothing is specified, or one specific
+// if there is an id inserted.
+func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) {
+	// Check if there is an ID in the url.
+	urlParts := strings.Split(r.URL.Path, "/")
+	if len(urlParts) != 5 || urlParts[4] == "" {
+
+		//Method from database-firebase that returns a list of struct of all the different webhooks
+		webhooks := GetAllWebhooks()
+
+		// encodes the resulting list to writer
+		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+		if err := json.NewEncoder(w).Encode(webhooks); err != nil {
+			http.Error(w, "Error when encoding webhooks to user: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// if there is an if, returns the webhook specified by webhook id
+		webhookId := urlParts[4]
+
+		// get webhook from database
+		webhook := database.GetWebhook(w, r, webhookId)
+
+		// encode the resulting webhook response
+		w.Header().Add("content-type", "application/json")
+		if err := json.NewEncoder(w).Encode(webhook); err != nil {
+			http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
