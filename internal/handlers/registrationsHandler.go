@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"assignment-2/database"
-	"assignment-2/database"
 	"assignment-2/internal"
 	"encoding/json"
 	"errors"
