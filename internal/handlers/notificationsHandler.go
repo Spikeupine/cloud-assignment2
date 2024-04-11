@@ -85,7 +85,7 @@ func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) 
 	if len(urlParts) != 5 || urlParts[4] == "" {
 
 		//Method from database-firebase that returns a list of struct of all the different webhooks
-		webhooks := GetAllWebhooks()
+		webhooks := database.GetAllWebhooks()
 
 		// encodes the resulting list to writer
 		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)

@@ -4,7 +4,6 @@ import (
 	"assignment-2/internal"
 	"cloud.google.com/go/firestore"
 	"context"
-	"encoding/json"
 	firebase "firebase.google.com/go"
 	"fmt"
 	"google.golang.org/api/option"
@@ -98,10 +97,6 @@ func DeleteTheWebhook(collectionName, documentID string) (error, int) {
 }
 
 // Returns all webhooks for now
-func getAllWebhooks(w http.ResponseWriter, r *http.Request) []internal.Webhook {
-	err := json.NewEncoder(w).Encode(webhooks)
-	if err != nil {
-		http.Error(w, "Something went wrong when getting all webhooks "+err.Error(), http.StatusServiceUnavailable)
-	}
+func GetAllWebhooks() []internal.Webhook {
 	return webhooks
 }
