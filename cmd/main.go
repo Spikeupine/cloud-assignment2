@@ -9,14 +9,6 @@ import (
 	"os"
 )
 
-// Firebase context and client used by Firestore functions throughout the program.
-
-// Collection name in Firestore
-const collection = "something"
-
-// Message counter to produce some variation in content
-var ct = 0
-
 // This is the start point of the entire service.
 func main() {
 	database.FirebaseConnect()
