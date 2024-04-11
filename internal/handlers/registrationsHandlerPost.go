@@ -41,6 +41,7 @@ func registerDashboard(w http.ResponseWriter, r *http.Request) error {
 func uploadDashboard(dashboard internal.RegisterRequest) (internal.RegistrationsResponse, error) {
 	id, _ := uuid.NewUUID()
 	client := database.GetClient()
+	dashboard.Id = id.String()
 	_, err := client.Collection("dashboards").Doc(id.String()).Create(database.GetContext(), dashboard)
 	if err != nil {
 		return internal.RegistrationsResponse{}, err

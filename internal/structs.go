@@ -40,9 +40,14 @@ type Features struct {
 }
 
 type RegisterRequest struct {
+	Id       string `json:"id"`
 	Country  string `json:"country"`
 	IsoCode  string `json:"isoCode"`
 	Features Features
+}
+
+type RegisterMap struct {
+	Registers map[string]RegisterRequest `json:"registers"`
 }
 
 type Basics struct {
