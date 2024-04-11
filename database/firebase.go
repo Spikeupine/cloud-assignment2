@@ -54,36 +54,18 @@ func FireBaseCloseConnection() {
 }
 
 // Manages registration of the different types of webhooks.
-func webhookDirector(w http.ResponseWriter, r *http.Request) {
-
-	//Handles POST and GET
-	switch r.Method {
-	case http.MethodPost:
-		RegisterWebhook(w, r, collectionName)
-		break
-	case http.MethodGet:
-		GetWebhook(w, r, collectionName)
-		break
-	case http.MethodDelete:
-		DeleteWebhook(w, r, collectionName)
-		break
-	default:
-		http.Error(w, "Method '"+r.Method+"' not supported. Currently method '"+http.MethodPost+
-			"', '"+http.MethodDelete+"' and '"+http.MethodGet+"' is supported.", http.StatusNotImplemented)
-	}
-}
 
 // Registers the different webhooks. Appends the webhook to the collection of other webhooks.
-func RegisterWebhook(w http.ResponseWriter, r *http.Request, collectionName string) {
-	//Initializes empty struct of webhook to populate
-	webhook := internal.Webhook{}
-
-	//Populates the webhook struct with content from body of response.
-	err := json.NewDecoder(r.Body).Decode(&webhook)
-	if err != nil {
-		http.Error(w, "Error in registration of webhook", http.StatusInternalServerError)
-	}
+func AddWebhookToCollection(webhook internal.Webhook, collectionName string) (string, error) {
 	webhooks = append(webhooks, webhook)
+
+	// Adds the webhook to the collection in firestore database
+	docRef, _, err := client.Collection(collectionName).Add(ctx, webhook)
+	if err != nil {
+		return "", err
+	}
+	return docRef.ID, nil
+
 }
 
 // Gets the webhook requested by its ID
