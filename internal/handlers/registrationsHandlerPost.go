@@ -22,7 +22,8 @@ func registerDashboard(w http.ResponseWriter, r *http.Request) error {
 		http.Error(w, "ISO country code or country must be present: ", http.StatusBadRequest)
 		return nil
 	}
-
+	id, _ := uuid.NewUUID()
+	dashboard.Id = id.String()
 	// Parse the user's feature selections and create/update the dashboard in Firestore
 	response, err := uploadDashboard(dashboard)
 	if err != nil {
@@ -39,15 +40,13 @@ func registerDashboard(w http.ResponseWriter, r *http.Request) error {
 
 // uploadDashboard uploads a dashboard to firestore
 func uploadDashboard(dashboard internal.RegisterRequest) (internal.RegistrationsResponse, error) {
-	id, _ := uuid.NewUUID()
 	client := database.GetClient()
-	dashboard.Id = id.String()
-	_, err := client.Collection("dashboards").Doc(id.String()).Create(database.GetContext(), dashboard)
+	_, err := client.Collection("dashboards").Doc(dashboard.Id).Create(database.GetContext(), dashboard)
 	if err != nil {
 		return internal.RegistrationsResponse{}, err
 	}
 	registrationResponse := internal.RegistrationsResponse{
-		Id:         id,
+		Id:         dashboard.Id,
 		LastChange: time.Now(),
 	}
 	return registrationResponse, nil

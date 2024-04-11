@@ -3,7 +3,6 @@ package internal
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
@@ -25,7 +24,7 @@ type CurrencyInfo struct {
 }
 
 type RegistrationsResponse struct {
-	Id         uuid.UUID
+	Id         string
 	LastChange time.Time
 }
 
