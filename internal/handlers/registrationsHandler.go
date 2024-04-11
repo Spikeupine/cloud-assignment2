@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -8,14 +9,12 @@ import (
 func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		/*
-			pathValue := r.PathValue("$")
-			if pathValue == "" {
-				fmt.Fprintf(w, "All paths")
-			} else {
-				fmt.Fprintf(w, "Path for %s", pathValue)
-			}
-		*/
+		pathValue := r.PathValue("id")
+		if pathValue == "" {
+			fmt.Fprintf(w, "All paths")
+		} else {
+			fmt.Fprintf(w, "Path for %s", pathValue)
+		}
 	case http.MethodPost:
 		err := registerDashboard(w, r)
 		if err != nil {
