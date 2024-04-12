@@ -13,7 +13,20 @@ Sofia Serine Mikkelsen
 # Docker setup
 First you need to make sure you have the firebase key saved in `firebase_privatekey.json` at the project root.
 
+## Start the docker engine
+### On linux 
+```bash
+ sudo systemctl start docker
+ ```
 
+### On Windows or MacOS
+Start `docker desktop` from programs
+
+
+Pull golang
+```bash
+docker pull golang
+```
 Build the container:
 ```bash
 docker build -t dashboardservice .
