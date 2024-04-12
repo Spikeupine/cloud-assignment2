@@ -24,6 +24,7 @@ func registerDashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 	id, _ := uuid.NewUUID()
 	dashboard.Id = id.String()
+	dashboard.LastChange = time.Now()
 	// Parse the user's feature selections and create/update the dashboard in Firestore
 	response, err := uploadDashboard(dashboard)
 	if err != nil {
@@ -47,7 +48,7 @@ func uploadDashboard(dashboard internal.RegisterRequest) (internal.Registrations
 	}
 	registrationResponse := internal.RegistrationsResponse{
 		Id:         dashboard.Id,
-		LastChange: time.Now(),
+		LastChange: dashboard.LastChange,
 	}
 	return registrationResponse, nil
 }

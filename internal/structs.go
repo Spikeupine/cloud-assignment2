@@ -39,10 +39,11 @@ type Features struct {
 }
 
 type RegisterRequest struct {
-	Id       string `json:"id"`
-	Country  string `json:"country"`
-	IsoCode  string `json:"isoCode"`
-	Features Features
+	Id         string    `json:"id"`
+	Country    string    `json:"country"`
+	IsoCode    string    `json:"isoCode"`
+	LastChange time.Time `json:"lastChange"`
+	Features   Features
 }
 
 type RegisterMap struct {

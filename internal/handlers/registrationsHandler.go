@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"net/http"
+	"time"
 )
 
 // RegistrationsHandler handles requests to the registration endpoint,
@@ -66,6 +67,7 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		// Makes sure the ID isn't overwritten
 		updatedRegistration.Id = id
+		updatedRegistration.LastChange = time.Now()
 		if _, err := firestoreClient.Collection("dashboards").Doc(id).Set(r.Context(), updatedRegistration); err != nil {
 			http.Error(w, "Failed to update registration", http.StatusInternalServerError)
 			return
