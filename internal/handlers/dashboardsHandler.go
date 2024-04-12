@@ -11,7 +11,7 @@ import (
 func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		id := "this is my id" //r.URL.Query().Get("id")
+		id := r.PathValue("id")
 		if len(id) < 1 {
 			http.Error(w, "invalid ID", http.StatusBadRequest)
 			return
