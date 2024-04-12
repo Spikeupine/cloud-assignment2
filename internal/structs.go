@@ -3,7 +3,6 @@ package internal
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
@@ -25,7 +24,7 @@ type CurrencyInfo struct {
 }
 
 type RegistrationsResponse struct {
-	Id         uuid.UUID
+	Id         string
 	LastChange time.Time
 }
 
@@ -40,9 +39,15 @@ type Features struct {
 }
 
 type RegisterRequest struct {
-	Country  string `json:"country"`
-	IsoCode  string `json:"isoCode"`
-	Features Features
+	Id         string    `json:"id"`
+	Country    string    `json:"country"`
+	IsoCode    string    `json:"isoCode"`
+	LastChange time.Time `json:"lastChange"`
+	Features   Features
+}
+
+type RegisterMap struct {
+	Registers map[string]RegisterRequest `json:"registers"`
 }
 
 type Basics struct {

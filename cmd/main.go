@@ -22,8 +22,10 @@ func main() {
 
 	// Register the routes and their corresponding handlers
 	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
+	http.HandleFunc(internal.RegistrationsPath, handlers.RegistrationsHandler)
+	http.HandleFunc(internal.RegistrationsPath+"{id}", handlers.RegistrationsHandler)
+	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
 	http.HandleFunc(internal.DashboardsPath+"{id}", handlers.DashboardsHandler)
-	http.HandleFunc(internal.RegistrationsPath, handlers.RegistrationsPostHandler)
 	http.HandleFunc(internal.NotificationsPath, handlers.NotificationsHandler)
 
 	// Starts the server
