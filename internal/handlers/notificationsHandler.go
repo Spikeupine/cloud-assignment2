@@ -5,7 +5,6 @@ import (
 	"assignment-2/internal"
 	"encoding/json"
 	"net/http"
-	"regexp"
 	"strings"
 )
 
@@ -35,12 +34,6 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 		http.Error(w, "Error during decoding body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	if validISO, _ := regexp.MatchString("^[a-zA-Z]{3}$", webhook.Event); !validISO && webhook.Event != "" {
-		http.Error(w, "Error: Invalid ISO code", http.StatusBadRequest)
-		return
-	}
-	webhook.Event = strings.ToUpper(webhook.Event)
 
 	// adds the webhook to the database via methods in firebase-
 	webhookId, err := database.AddWebhookToCollection(webhook, collectionName)
