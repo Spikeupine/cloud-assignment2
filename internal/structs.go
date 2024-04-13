@@ -61,8 +61,9 @@ type Basics struct {
 
 // Webhook is used when we register webhooks for notifications endpoint
 type Webhook struct {
-	WebhookId string `json:"webhook_id,omitempty" firebase:"webhook_id,omitempty"`
+	WebhookId string `json:"webhook_id" firebase:"webhook_id"`
 	Url       string `json:"url" firebase:"url"`
+	Country   string `json:"iso" firebase:"iso"`
 	Event     string `json:"dashboard,omitempty" firebase:"dashboard"`
 }
 
