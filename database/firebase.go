@@ -58,8 +58,7 @@ func FireBaseCloseConnection() {
 func AddWebhookToCollection(webhook internal.Webhook, collectionName string) error {
 	webhooks = append(webhooks, webhook)
 
-	// Adds the webhook to the collection in firestore database
-	_, _, err := client.Collection(collectionName).Add(ctx, webhook)
+	_, err := client.Collection(collectionName).Doc(webhook.WebhookId).Create(ctx, webhook)
 	if err != nil {
 		return err
 	}
