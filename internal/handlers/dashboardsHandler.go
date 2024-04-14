@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"assignment-2/database"
 	"assignment-2/internal"
 	"encoding/json"
 	"net/http"
-	"time"
 )
 
 // DashboardsHandler handles requests related to dashboards
@@ -17,9 +17,9 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		dashboard, err := getDashboard(id)
+		dashboard, err := getPopulatedDashboard(id)
 		if err != nil {
-			http.Error(w, "error retrieving dashboard: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "error retrieving populated dashboard: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -36,29 +36,16 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getDashboard retrieves dashboard information.
-func getDashboard(id string) (internal.PopulatedDashboard, error) {
+func getPopulatedDashboard(id string) (internal.PopulatedDashboard, error) {
 	var dashboard internal.PopulatedDashboard
-
-	id = "1"
-
-	// Assign mock values to the dashboard
-	dashboard.Country = "Mock Country"
-	dashboard.IsoCode = "MC"
-	dashboard.Features.Temperature = 25.5
-	dashboard.Features.Precipitation = 10.2
-	dashboard.Features.Capital = "Mock Capital"
-	dashboard.Features.Coordinates.Latitude = 40.7128
-	dashboard.Features.Coordinates.Longitude = -74.0060
-	dashboard.Features.Population = 1000000
-	dashboard.Features.Area = 1234.56
-	dashboard.Features.TargetCurrencies = map[string]float64{
-		"USD": 1.23,
-		"EUR": 0.98,
+	docRef := database.GetClient().Collection("populatedDashboards").Doc(id)
+	docSnapshot, err := docRef.Get(database.GetContext())
+	if err != nil {
+		return internal.PopulatedDashboard{}, err
 	}
-	dashboard.LastRetrieval = time.Now().Format(time.RFC3339)
-
-	// Ignore binder and client for now.
-
+	err = docSnapshot.DataTo(&dashboard)
+	if err != nil {
+		return internal.PopulatedDashboard{}, err
+	}
 	return dashboard, nil
 }
