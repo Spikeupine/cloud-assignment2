@@ -66,20 +66,17 @@ func AddWebhookToCollection(webhook internal.Webhook, collectionName string) err
 	return nil
 
 }
-func MultipleDocs(collectionName string) error {
-	fmt.Println("All webhooks:")
-	iter := client.Collection(collectionName).Where("webhook_id", "==", true).Documents(ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return err
-		}
-		fmt.Println(doc.Data())
-	}
-	return nil
+
+// UpdateTheCallCount of the webhook document by id and collection name. Takes in count to pass on to database.
+func UpdateTheCallCount(collectionName, docId string, callCount int) error {
+
+	_, err := client.Collection(collectionName).Doc(docId).Update(ctx, []firestore.Update{
+		{
+			Path:  "Calls",
+			Value: callCount,
+		},
+	})
+	return err
 }
 
 // Gets the webhook requested by its ID

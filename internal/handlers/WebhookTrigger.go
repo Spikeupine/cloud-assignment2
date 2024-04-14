@@ -24,18 +24,23 @@ func IncrementCallCount(w http.ResponseWriter, countryCode string) {
 		if countryCode == webhook.Country || countryCode == "" {
 			webhook.Calls++
 			if webhook.Calls == 1 {
-				invokeWebhook(webhook.Url, internal.WebhookInvocation{
+				invokeWebhook(webhook.Url, internal.Webhook{
 					WebhookId: webhook.WebhookId,
 					Country:   webhook.Country,
 					Calls:     webhook.Calls,
 				})
+			}
+			err := database.UpdateTheCallCount(collectionNameWebhooks, webhook.WebhookId, webhook.Calls)
+			if err != nil {
+				http.Error(w, "Error when updating call count in webhook trigger :"+err.Error(), http.StatusNotFound)
+				return
 			}
 		}
 	}
 }
 
 // invokeWebhook invokes a POST request to the webhook at url with the body data
-func invokeWebhook(url string, data internal.WebhookInvocation) {
+func invokeWebhook(url string, data internal.Webhook) {
 
 	payload, err := json.Marshal(data)
 	if err != nil {

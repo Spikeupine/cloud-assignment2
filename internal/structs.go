@@ -68,13 +68,6 @@ type Webhook struct {
 	Calls     int    `json:"calls" firebase:"calls"`
 }
 
-// WebhookInvocation is used when invoking a webhook
-type WebhookInvocation struct {
-	WebhookId string `json:"webhook_id"`
-	Country   string `json:"iso"`
-	Calls     int    `json:"calls" firebase:"calls"`
-}
-
 type Status struct {
 	CountriesAPI   int    `json:"countries_api"`
 	MeteoAPI       int    `json:"meteo_api"`
