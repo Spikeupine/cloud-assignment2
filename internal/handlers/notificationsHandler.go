@@ -90,21 +90,19 @@ func DeleteWebhook(w http.ResponseWriter, r *http.Request, collectionName string
 // if there is an id inserted.
 func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) {
 
-	err := database.MultipleDocs(collectionName)
+	webhooks, err := database.GetAllWebhooks(w, collectionName)
 	if err != nil {
-		http.Error(w, "error when getting all webhooks"+err.Error(), http.StatusServiceUnavailable)
+		http.Error(w, "Error when receiveing variable that stores all the webhooks :"+err.Error(), http.StatusInternalServerError)
+		return
 	}
-	/*
-		//Method from database-firebase that returns a list of struct of all the different webhooks
-		webhooks := database.GetAllWebhooks()
 
-		// encodes the resulting list to writer
-		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
-		if err := json.NewEncoder(w).Encode(webhooks); err != nil {
-			http.Error(w, "Error when encoding webhooks to user: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	*/
+	// encodes the resulting list to writer
+	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+	if err := json.NewEncoder(w).Encode(webhooks); err != nil {
+		http.Error(w, "Error when encoding webhooks to user: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 func getWebhook(w http.ResponseWriter, r *http.Request, webhookId string) {

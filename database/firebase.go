@@ -110,7 +110,28 @@ func DeleteTheWebhook(collectionName, documentID string) (error, int) {
 	return nil, 0
 }
 
-// Returns all webhooks for now
-func GetAllWebhooks() []internal.Webhook {
-	return webhooks
+// GetAllWebhooks displays all the registered webhooks in the collection.
+func GetAllWebhooks(w http.ResponseWriter, collectionName string) ([]internal.Webhook, error) {
+	//Creates map to sture the different documents in
+	var documents []internal.Webhook
+
+	//Iterator going through all the documents
+	iter := client.Collection(collectionName).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break //Finished going through the documents.
+		}
+		if err != nil {
+			http.Error(w, "Error iterating through webhooks :"+err.Error(), http.StatusInternalServerError)
+		}
+
+		var data internal.Webhook
+		if err := doc.DataTo(&data); err != nil {
+			return nil, fmt.Errorf("error decoding document data: %v", err)
+		}
+
+		documents = append(documents, data)
+	}
+	return documents, nil
 }
