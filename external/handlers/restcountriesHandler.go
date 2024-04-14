@@ -5,7 +5,6 @@ import (
 	"assignment-2/internal"
 	"encoding/json"
 	"errors"
-	"net/http"
 )
 
 func GetRestCountries(countryName string, isoCode string) (country external.CountriesObject, err error) {
@@ -13,12 +12,7 @@ func GetRestCountries(countryName string, isoCode string) (country external.Coun
 	if err != nil {
 		return country, err
 	}
-	request, err := http.NewRequest(http.MethodGet, link, nil)
-	if err != nil {
-		return country, err
-	}
-	client := &http.Client{}
-	response, err := client.Do(request)
+	response, err := external.GetExternalResource(link)
 	if err != nil {
 		return country, err
 	}
