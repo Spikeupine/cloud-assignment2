@@ -5,6 +5,8 @@ import "fmt"
 // API's
 // Link to the countries api
 const CountriesApi = "http://129.241.150.113:8080/v3.1/"
+const IsoExtention = "/alpha/"
+const CountryNameExtention = "/name/"
 
 // Link to the currency api
 const CurrencyApi = "http://129.241.150.113:9090/currency/"
@@ -46,5 +48,4 @@ returns the MeteoURL for the given coordinates
 func GetMeteoUrl(lat float64, long float64) string {
 	arguments := fmt.Sprintf(MeteoField, lat, long)
 	return MeteoApi + arguments
-
 }
