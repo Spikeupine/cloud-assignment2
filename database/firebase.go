@@ -67,15 +67,18 @@ func AddWebhookToCollection(webhook internal.Webhook, collectionName string) err
 }
 
 // Gets the webhook requested by its ID
-func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) internal.Webhook {
-	var webhookInQuestion internal.Webhook
-	for _, webhook := range webhooks {
-		if webhook.WebhookId == webhookID {
-			webhookInQuestion = webhook
-			return webhookInQuestion
-		}
+func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) (internal.Webhook, error) {
+	var hook internal.Webhook
+	documentContent, err := client.Doc("dashboards/" + webhookID).Get(ctx)
+	if err != nil {
+		return hook, err
 	}
-	return webhookInQuestion
+
+	if err := documentContent.DataTo(&hook); err != nil {
+		return hook, err
+	}
+
+	return hook, nil
 }
 
 // Deletes document with id, doccumentID from the collection with the name and collectionName in the database

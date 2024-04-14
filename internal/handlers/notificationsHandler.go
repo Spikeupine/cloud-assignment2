@@ -100,7 +100,10 @@ func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) 
 func getWebhook(w http.ResponseWriter, r *http.Request, webhookId string) {
 
 	// get webhook from database
-	webhook := database.GetWebhook(w, r, webhookId)
+	webhook, err := database.GetWebhook(w, r, webhookId)
+	if err != nil {
+		http.Error(w, "Error when getting specified webhook "+err.Error(), http.StatusBadRequest)
+	}
 
 	// encode the resulting webhook response
 	w.Header().Add("content-type", "application/json")
