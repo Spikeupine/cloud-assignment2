@@ -5,7 +5,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	firebase "firebase.google.com/go"
-	"fmt"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
@@ -83,9 +82,6 @@ func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) (inter
 
 // Deletes document with id, doccumentID from the collection with the name and collectionName in the database
 func DeleteTheWebhook(collectionName, documentID string) (error, int) {
-	if client == nil {
-		return fmt.Errorf("firebase is not initialized"), http.StatusInternalServerError
-	}
 
 	// reference to the webhook document
 	docReference := client.Doc(collectionName + "/" + documentID)

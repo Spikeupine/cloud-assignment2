@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"net/http"
-	"strings"
 )
 
 var collectionName = "dashboards"
@@ -17,7 +16,13 @@ func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		WebhookRegistration(w, r, collectionName)
 	case http.MethodDelete:
-		DeleteWebhook(w, r, collectionName)
+		pathValue := r.PathValue("id")
+		if pathValue == "" {
+			return
+		} else {
+			DeleteWebhook(w, r, collectionName, pathValue)
+		}
+
 	case http.MethodGet:
 		pathValue := r.PathValue("id")
 		if pathValue == "" {
@@ -68,11 +73,7 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 }
 
 // DeleteWebhook handles DELETE method, and deletes the webhook with specified if from database.
-func DeleteWebhook(w http.ResponseWriter, r *http.Request, collectionName string) {
-	// gets the webhook id from the url
-	urlParts := strings.Split(r.URL.Path, "/")
-
-	webhookId := urlParts[4]
+func DeleteWebhook(w http.ResponseWriter, r *http.Request, collectionName string, webhookId string) {
 
 	// deletes the webhook
 	if err, sc := database.DeleteTheWebhook(collectionName, webhookId); err != nil {
