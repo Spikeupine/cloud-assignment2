@@ -13,10 +13,9 @@ import (
 )
 
 var (
-	ctx            context.Context
-	client         *firestore.Client
-	collectionName string = "dashboards"
-	webhooks              = []internal.Webhook{}
+	ctx      context.Context
+	client   *firestore.Client
+	webhooks = []internal.Webhook{}
 )
 
 func GetClient() *firestore.Client {
