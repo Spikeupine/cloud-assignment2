@@ -5,8 +5,8 @@ import "fmt"
 // API's
 // Link to the countries api
 const CountriesApi = "http://129.241.150.113:8080/v3.1/"
-const IsoExtention = "/alpha/"
-const CountryNameExtention = "/name/"
+const IsoExtention = "alpha/"
+const CountryNameExtention = "name/"
 
 // Link to the currency api
 const CurrencyApi = "http://129.241.150.113:9090/currency/"
@@ -38,6 +38,8 @@ const ApplicationJson = "Content type"
 
 // Example of ISO code to be used to check if services that require ISO code is available.
 const IsoExample = "alpha?codes=no"
+const TestEndpoint = "/tests/v1/"
+const CountriesEndpoint = TestEndpoint + "countries/"
 
 /*
 GetMeteoUrl
