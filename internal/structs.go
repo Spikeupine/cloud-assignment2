@@ -65,6 +65,7 @@ type Webhook struct {
 	Url       string `json:"url" firebase:"url"`
 	Country   string `json:"iso" firebase:"iso"`
 	Event     string `json:"event,omitempty" firebase:"event"`
+	Calls     int    `json:"calls" firebase:"calls"`
 }
 
 // WebhookResponse is used in response of the notifications endpoint
