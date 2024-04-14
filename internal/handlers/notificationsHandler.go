@@ -19,7 +19,7 @@ func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		WebhookRegistration(w, r, collectionNameWebhooks)
 	case http.MethodDelete:
-		pathValue := r.PathValue("id")
+		pathValue := r.PathValue(internal.Id)
 		if pathValue == "" {
 			return
 		} else {
@@ -27,8 +27,8 @@ func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodGet:
-		pathValue := r.PathValue("id")
-		if pathValue == "" {
+		pathValue := r.PathValue(internal.Id)
+		if pathValue == internal.Empty {
 			GetWebhooks(w, r, collectionNameWebhooks)
 		} else {
 			getWebhook(w, r, pathValue)
@@ -108,13 +108,13 @@ func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) 
 func getWebhook(w http.ResponseWriter, r *http.Request, webhookId string) {
 
 	// get webhook from database
-	webhook, err := database.GetWebhook(w, r, webhookId)
+	webhook, err := database.GetWebhook(webhookId)
 	if err != nil {
 		http.Error(w, "Error when getting specified webhook "+err.Error(), http.StatusBadRequest)
 	}
 
 	// encode the resulting webhook response
-	w.Header().Add("content-type", "application/json")
+	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
 	if err := json.NewEncoder(w).Encode(webhook); err != nil {
 		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
 		return

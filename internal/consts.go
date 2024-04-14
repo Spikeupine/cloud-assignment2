@@ -40,6 +40,9 @@ const IsoExample = "alpha?codes=no"
 // Id as a const, to insert in different urls. Specifies where user input should be.
 const Id = "{id}"
 
+// Empty string
+const Empty = ""
+
 /*
 GetMeteoUrl
 lat Latitude

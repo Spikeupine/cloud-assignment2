@@ -23,7 +23,7 @@ func IncrementCallCount(w http.ResponseWriter, countryCode string) {
 
 		// increments the count of calls on each of that specified country code, so every time a country with that
 		// iso code is registered to registrations endpoint, it adds one to the count.
-		if countryCode == webhook.Country || countryCode == "" {
+		if countryCode == webhook.Country || countryCode == internal.Empty {
 			webhook.Calls++
 
 			//If-check to find the first time the webhook is registered. Takes it to invocation-method below.

@@ -5,7 +5,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	firebase "firebase.google.com/go"
-	"fmt"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"log"
@@ -14,9 +13,8 @@ import (
 )
 
 var (
-	ctx      context.Context
-	client   *firestore.Client
-	webhooks = []internal.Webhook{}
+	ctx    context.Context
+	client *firestore.Client
 )
 
 func GetClient() *firestore.Client {
@@ -53,18 +51,14 @@ func FireBaseCloseConnection() {
 	}
 }
 
-// Manages registration of the different types of webhooks.
-
-// Registers the different webhooks. Appends the webhook to the collection of other webhooks.
+// Appends the webhook to the collection of other webhooks in firebase.
 func AddWebhookToCollection(webhook internal.Webhook, collectionName string) error {
-	webhooks = append(webhooks, webhook)
 
 	_, err := client.Collection(collectionName).Doc(webhook.WebhookId).Create(ctx, webhook)
 	if err != nil {
 		return err
 	}
 	return nil
-
 }
 
 // UpdateTheCallCount of the webhook document by id and collection name. Takes in count to pass on to database.
@@ -79,8 +73,8 @@ func UpdateTheCallCount(collectionName, docId string, callCount int) error {
 	return err
 }
 
-// Gets the webhook requested by its ID
-func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) (internal.Webhook, error) {
+// GetWebhook returns the webhook requested by its ID, or an error if any.
+func GetWebhook(webhookID string) (internal.Webhook, error) {
 	var hook internal.Webhook
 	documentContent, err := client.Doc("webhooks/" + webhookID).Get(ctx)
 	if err != nil {
@@ -94,7 +88,7 @@ func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) (inter
 	return hook, nil
 }
 
-// Deletes document with id, doccumentID from the collection with the name and collectionName in the database
+// DeleteTheWebhook finds the specified document's id in the collection specified, and deletes it.
 func DeleteTheWebhook(collectionName, documentID string) (error, int) {
 
 	// reference to the webhook document
@@ -107,7 +101,7 @@ func DeleteTheWebhook(collectionName, documentID string) (error, int) {
 	return nil, 0
 }
 
-// GetAllWebhooks displays all the registered webhooks in the collection.
+// GetAllWebhooks displays all the registered webhooks in the collection from firebase.
 func GetAllWebhooks(w http.ResponseWriter, collectionName string) ([]internal.Webhook, error) {
 	//Creates map to sture the different documents in
 	var documents []internal.Webhook
@@ -124,8 +118,9 @@ func GetAllWebhooks(w http.ResponseWriter, collectionName string) ([]internal.We
 		}
 
 		var data internal.Webhook
-		if err := doc.DataTo(&data); err != nil {
-			return nil, fmt.Errorf("error decoding document data: %v", err)
+		err = doc.DataTo(&data)
+		if err != nil {
+			http.Error(w, "Error when sending data to document in getAllWebhooks :"+err.Error(), http.StatusInternalServerError)
 		}
 
 		documents = append(documents, data)
