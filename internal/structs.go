@@ -68,17 +68,11 @@ type Webhook struct {
 	Calls     int    `json:"calls" firebase:"calls"`
 }
 
-// WebhookResponse is used in response of the notifications endpoint
-type WebhookResponse struct {
-	WebhookId string `json:"webhook_id"`
-	Url       string `json:"url"`
-	Dashboard string `json:"dashboard"`
-}
-
 // WebhookInvocation is used when invoking a webhook
 type WebhookInvocation struct {
 	WebhookId string `json:"webhook_id"`
-	Dashboard string `json:"dashboard"`
+	Country   string `json:"iso"`
+	Calls     int    `json:"calls" firebase:"calls"`
 }
 
 type Status struct {
