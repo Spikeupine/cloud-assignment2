@@ -37,6 +37,9 @@ const ApplicationJson = "Content type"
 // Example of ISO code to be used to check if services that require ISO code is available.
 const IsoExample = "alpha?codes=no"
 
+// Id as a const, to insert in different urls. Specifies where user input should be.
+const Id = "id"
+
 /*
 GetMeteoUrl
 lat Latitude
