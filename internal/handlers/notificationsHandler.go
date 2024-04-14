@@ -4,6 +4,7 @@ import (
 	"assignment-2/database"
 	"assignment-2/internal"
 	"encoding/json"
+	"github.com/google/uuid"
 	"net/http"
 	"strings"
 )
@@ -30,6 +31,12 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 
 	// Decodes the webhook from the body of request
 	webhook := internal.Webhook{}
+
+	//Sets id of webhook with help from uuid.
+	id, _ := uuid.NewUUID()
+	webhook.WebhookId = id.String()
+
+	//Decodes rest of the response into struct.
 	if err := json.NewDecoder(r.Body).Decode(&webhook); err != nil {
 		http.Error(w, "Error during decoding body: "+err.Error(), http.StatusBadRequest)
 		return
