@@ -8,25 +8,28 @@ import (
 	"net/http"
 )
 
-var collectionName = "dashboards"
+var (
+	collectionName         = "dashboards"
+	collectionNameWebhooks = "webhooks"
+)
 
 // NotificationsHandler handles the notifications endpoint
 func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		WebhookRegistration(w, r, collectionName)
+		WebhookRegistration(w, r, collectionNameWebhooks)
 	case http.MethodDelete:
 		pathValue := r.PathValue("id")
 		if pathValue == "" {
 			return
 		} else {
-			DeleteWebhook(w, r, collectionName, pathValue)
+			DeleteWebhook(w, r, collectionNameWebhooks, pathValue)
 		}
 
 	case http.MethodGet:
 		pathValue := r.PathValue("id")
 		if pathValue == "" {
-			GetWebhooks(w, r, collectionName)
+			GetWebhooks(w, r, collectionNameWebhooks)
 		} else {
 			getWebhook(w, r, pathValue)
 		}
@@ -87,15 +90,21 @@ func DeleteWebhook(w http.ResponseWriter, r *http.Request, collectionName string
 // if there is an id inserted.
 func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) {
 
-	//Method from database-firebase that returns a list of struct of all the different webhooks
-	webhooks := database.GetAllWebhooks()
-
-	// encodes the resulting list to writer
-	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
-	if err := json.NewEncoder(w).Encode(webhooks); err != nil {
-		http.Error(w, "Error when encoding webhooks to user: "+err.Error(), http.StatusInternalServerError)
-		return
+	err := database.MultipleDocs(collectionName)
+	if err != nil {
+		http.Error(w, "error when getting all webhooks"+err.Error(), http.StatusServiceUnavailable)
 	}
+	/*
+		//Method from database-firebase that returns a list of struct of all the different webhooks
+		webhooks := database.GetAllWebhooks()
+
+		// encodes the resulting list to writer
+		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+		if err := json.NewEncoder(w).Encode(webhooks); err != nil {
+			http.Error(w, "Error when encoding webhooks to user: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	*/
 }
 
 func getWebhook(w http.ResponseWriter, r *http.Request, webhookId string) {

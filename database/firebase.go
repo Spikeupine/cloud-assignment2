@@ -5,6 +5,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	firebase "firebase.google.com/go"
+	"fmt"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
@@ -64,11 +66,26 @@ func AddWebhookToCollection(webhook internal.Webhook, collectionName string) err
 	return nil
 
 }
+func MultipleDocs(collectionName string) error {
+	fmt.Println("All webhooks:")
+	iter := client.Collection(collectionName).Where("webhook_id", "==", true).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		fmt.Println(doc.Data())
+	}
+	return nil
+}
 
 // Gets the webhook requested by its ID
 func GetWebhook(w http.ResponseWriter, r *http.Request, webhookID string) (internal.Webhook, error) {
 	var hook internal.Webhook
-	documentContent, err := client.Doc("dashboards/" + webhookID).Get(ctx)
+	documentContent, err := client.Doc("webhooks/" + webhookID).Get(ctx)
 	if err != nil {
 		return hook, err
 	}
