@@ -56,15 +56,15 @@ func FireBaseCloseConnection() {
 // Manages registration of the different types of webhooks.
 
 // Registers the different webhooks. Appends the webhook to the collection of other webhooks.
-func AddWebhookToCollection(webhook internal.Webhook, collectionName string) (string, error) {
+func AddWebhookToCollection(webhook internal.Webhook, collectionName string) error {
 	webhooks = append(webhooks, webhook)
 
 	// Adds the webhook to the collection in firestore database
-	docRef, _, err := client.Collection(collectionName).Add(ctx, webhook)
+	_, _, err := client.Collection(collectionName).Add(ctx, webhook)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return docRef.ID, nil
+	return nil
 
 }
 

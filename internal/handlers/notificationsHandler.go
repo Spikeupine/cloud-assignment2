@@ -43,7 +43,7 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 	}
 
 	// adds the webhook to the database via methods in firebase-
-	webhookId, err := database.AddWebhookToCollection(webhook, collectionName)
+	err := database.AddWebhookToCollection(webhook, collectionName)
 	if err != nil {
 		http.Error(w, "Error when adding webhook: "+webhook.Url+" to firebase collection "+
 			collectionName+": "+err.Error(), http.StatusFailedDependency)
@@ -52,7 +52,7 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 
 	// returns webhook id as response
 	output := map[string]string{
-		"webhook_id": webhookId,
+		"webhook_id": webhook.WebhookId,
 	}
 	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
 	w.WriteHeader(http.StatusCreated)
