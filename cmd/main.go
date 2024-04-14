@@ -27,7 +27,7 @@ func main() {
 	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
 	http.HandleFunc(internal.DashboardsPath+"{id}", handlers.DashboardsHandler)
 	http.HandleFunc(internal.NotificationsPath, handlers.NotificationsHandler)
-	http.HandleFunc(internal.NotificationsPath+"{id}", handlers.NotificationsHandler)
+	http.HandleFunc(internal.NotificationsPath+internal.Id, handlers.NotificationsHandler)
 
 	// Starts the server
 	log.Println("Starting server on http://localhost:" + port + " ...")
