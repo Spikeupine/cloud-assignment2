@@ -50,9 +50,12 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
 		if id == "" {
 			http.Error(w, "id required", http.StatusBadRequest)
+			return
 		}
+
 		// Initialize Firestore client
 		firestoreClient := database.GetClient()
+
 		// Fetch the existing registration
 		_, err := fetchSingleByField(r.Context(), firestoreClient, "dashboards", id)
 		if err != nil {
@@ -68,11 +71,8 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 		// Makes sure the ID isn't overwritten
 		updatedRegistration.Id = id
 		updatedRegistration.LastChange = time.Now()
-		if _, err := firestoreClient.Collection("dashboards").Doc(id).Set(r.Context(), updatedRegistration); err != nil {
-			http.Error(w, "Failed to update registration", http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprintf(w, "Registration with ID %s updated successfully", id)
+
+		fmt.Fprintf(w, "Registration and corresponding dashboard with ID %s updated successfully", id)
 
 	case http.MethodDelete:
 		// Extract ID from URL path
@@ -94,28 +94,6 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-	}
-}
-
-func mergeRegistration(existingReg *internal.Features, newReg *internal.RegisterRequest) {
-	// Update each field in the existing registration with the corresponding field from the new registration
-	if newReg.Features.Temperature {
-		existingReg.Temperature = true
-	}
-	if newReg.Features.Precipitation {
-		existingReg.Precipitation = true
-	}
-	if newReg.Features.Capital {
-		existingReg.Capital = true
-	}
-	if newReg.Features.Population {
-		existingReg.Population = true
-	}
-	if newReg.Features.Area {
-		existingReg.Area = true
-	}
-	if len(newReg.Features.TargetCurrencies) > 0 {
-		existingReg.TargetCurrencies = newReg.Features.TargetCurrencies
 	}
 }
 
