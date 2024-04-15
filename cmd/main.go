@@ -24,7 +24,7 @@ func main() {
 	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
 	http.HandleFunc(internal.RegistrationsPath, handlers.RegistrationsHandler)
 	http.HandleFunc(internal.RegistrationsPath+"{id}", handlers.RegistrationsHandler)
-	http.HandleFunc(internal.DashboardsPath, handlers.HandleRestcountriesapi)
+	http.HandleFunc(internal.DashboardsPath, handlers.DashboardsHandler)
 	http.HandleFunc(internal.DashboardsPath+"{id}", handlers.DashboardsHandler)
 	// Starts the server
 	log.Println("Starting server on http://localhost:" + port + " ...")
