@@ -9,7 +9,6 @@ import (
 )
 
 var (
-	collectionName         = "dashboards"
 	collectionNameWebhooks = "webhooks"
 )
 
@@ -19,8 +18,8 @@ func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		WebhookRegistration(w, r, collectionNameWebhooks)
 	case http.MethodDelete:
-		pathValue := r.PathValue(internal.Id)
-		if pathValue == "" {
+		pathValue := r.PathValue("id")
+		if pathValue == internal.Empty {
 			return
 		} else {
 			DeleteWebhook(w, r, collectionNameWebhooks, pathValue)
@@ -31,7 +30,7 @@ func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 		if pathValue == internal.Empty {
 			GetWebhooks(w, r, collectionNameWebhooks)
 		} else {
-			getWebhook(w, r, pathValue)
+			getWebhook(w, collectionNameWebhooks, r, pathValue)
 		}
 	default:
 		http.Error(w, "Method '"+r.Method+"' not supported. Currently method '"+http.MethodPost+
@@ -79,11 +78,13 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 func DeleteWebhook(w http.ResponseWriter, r *http.Request, collectionName string, webhookId string) {
 
 	// deletes the webhook
-	if err, sc := database.DeleteTheWebhook(collectionName, webhookId); err != nil {
+	err, sc := database.DeleteTheWebhook(collectionName, webhookId)
+	if err != nil {
 		http.Error(w, "Error when deleting webhook with id '"+webhookId+"' :"+err.Error(), sc)
-		return
 	}
-	http.Error(w, "Webhook '"+webhookId+"' was deleted.", http.StatusOK)
+	if sc == 0 {
+		println("successfully deleted")
+	}
 }
 
 // GetWebhooks is the http.GET method that either returns all webhooks if nothing is specified, or one specific
@@ -95,7 +96,6 @@ func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) 
 		http.Error(w, "Error when receiveing variable that stores all the webhooks :"+err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	// encodes the resulting list to writer
 	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
 	if err := json.NewEncoder(w).Encode(webhooks); err != nil {
@@ -105,16 +105,17 @@ func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) 
 
 }
 
-func getWebhook(w http.ResponseWriter, r *http.Request, webhookId string) {
+func getWebhook(w http.ResponseWriter, collectionName string, r *http.Request, webhookId string) {
 
-	// get webhook from database
-	webhook, err := database.GetWebhook(webhookId)
+	// Get webhook from database
+	webhook, err := database.GetWebhook(collectionName, webhookId)
 	if err != nil {
-		http.Error(w, "Error when getting specified webhook "+err.Error(), http.StatusBadRequest)
+		http.Error(w, "Error when getting specified webhook: "+err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	// encode the resulting webhook response
-	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+	// Encode the resulting webhook response
+	w.Header().Set(internal.ContentTypeJson, internal.ApplicationJson)
 	if err := json.NewEncoder(w).Encode(webhook); err != nil {
 		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
 		return

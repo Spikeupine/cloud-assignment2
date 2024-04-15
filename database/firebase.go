@@ -74,15 +74,16 @@ func UpdateTheCallCount(collectionName, docId string, callCount int) error {
 }
 
 // GetWebhook returns the webhook requested by its ID, or an error if any.
-func GetWebhook(webhookID string) (internal.Webhook, error) {
-	var hook internal.Webhook
-	documentContent, err := client.Doc("webhooks/" + webhookID).Get(ctx)
+func GetWebhook(collectionName string, webhookID string) (internal.Webhook, error) {
+	docReference := client.Doc(collectionName + "/" + webhookID)
+	documentSnapshot, err := docReference.Get(ctx)
 	if err != nil {
-		return hook, err
+		return internal.Webhook{}, err
 	}
 
-	if err := documentContent.DataTo(&hook); err != nil {
-		return hook, err
+	var hook internal.Webhook
+	if err := documentSnapshot.DataTo(&hook); err != nil {
+		return internal.Webhook{}, err
 	}
 
 	return hook, nil
