@@ -20,7 +20,7 @@ func main() {
 	}
 	addr := ":" + port
 
-	// Register the routes and their corresponding handlers
+	// Register the routes and their corresponding resources
 	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
 	http.HandleFunc(internal.RegistrationsPath, handlers.RegistrationsHandler)
 	http.HandleFunc(internal.RegistrationsPath+"{id}", handlers.RegistrationsHandler)
