@@ -65,6 +65,8 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
+		EventWebhook(w, updatedRegistration.IsoCode, "CHANGE")
+
 		// Makes sure the ID isn't overwritten
 		updatedRegistration.Id = id
 		updatedRegistration.LastChange = time.Now()
