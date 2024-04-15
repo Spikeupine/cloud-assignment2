@@ -31,8 +31,8 @@ func registerDashboard(w http.ResponseWriter, r *http.Request) error {
 		http.Error(w, "Failed to create dashboard: "+err.Error(), http.StatusInternalServerError)
 		return err
 	}
-	//Method that registers webhook on specified ISO code
-	IncrementCallCount(w, dashboard.IsoCode)
+	EventWebhook(w, dashboard.IsoCode, "REGISTER")
+
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		http.Error(w, "Couldn't parse response from database", http.StatusInternalServerError)

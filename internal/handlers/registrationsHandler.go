@@ -82,7 +82,24 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 		firestoreClient := database.GetClient()
 
 		// Delete the registration document from Firestore based on the provided ID.
-		_, err := firestoreClient.Collection("dashboards").Doc(id).Delete(r.Context())
+		firestore := firestoreClient.Collection("dashboards").Doc(id)
+		document, err := firestore.Get(r.Context())
+		if err != nil {
+			http.Error(w, "Error when retrieving specified dashboard by id :"+err.Error(), http.StatusNotFound)
+			return
+		}
+		type isoCodeForWebhook struct {
+			IsoCode string `json:"isoCode"`
+			Method  string
+		}
+
+		var actualIsoCodeForWebhook isoCodeForWebhook
+		actualIsoCodeForWebhook.Method = "DELETE"
+		if err := document.DataTo(&actualIsoCodeForWebhook); err != nil {
+			http.Error(w, "Error when parsing country information for webhook check :"+err.Error(), http.StatusServiceUnavailable)
+		}
+		EventWebhook(w, actualIsoCodeForWebhook.IsoCode, actualIsoCodeForWebhook.Method)
+		_, err = firestore.Delete(r.Context())
 		if err != nil {
 			http.Error(w, "Error deleting registration: "+err.Error(), http.StatusInternalServerError)
 			return
