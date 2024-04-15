@@ -1,0 +1,9 @@
+services:
+  demoapp:
+    build: .
+    volumes:
+      - ./.secrets:/go/src/app/.secrets:ro
+      - ./.secrets/.env:/go/src/app/.env:ro
+    ports:
+      - '8080:8080'
+
