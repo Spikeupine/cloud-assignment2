@@ -60,7 +60,7 @@ func EventWebhook(w http.ResponseWriter, iso string, method string) {
 		println("Wrong wrong registerWebhook!!")
 	} else {
 		for _, webhook := range webhooks {
-			if webhook.Country == iso && webhook.Event == method {
+			if webhook.Country == iso || webhook.Country == "" && webhook.Event == method {
 				switch webhook.Event {
 				case "REGISTER":
 					IncrementCallCount(w, webhook)
