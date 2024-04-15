@@ -7,4 +7,6 @@
 /dataSources/
 /dataSources.local.xml
 firebase_privatekey.json
-.idea/
+**/.idea/
+**/.secrets/
+.env
