@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"assignment-2/database"
+	"assignment-2/external/resources"
 	"assignment-2/internal"
 	"encoding/json"
 	"net/http"
@@ -52,12 +53,11 @@ func getRegisterRequestFromDatabase(id string) (internal.RegisterRequest, error)
 }
 
 // Function to fetch data for each enabled feature
-func getPopulatedDashboard(id string) (internal.PopulatedDashboard, error) {
+func getPopulatedDashboard(id string) (populated internal.PopulatedDashboard, err error) {
 	var request internal.RegisterRequest
-	var populated internal.PopulatedDashboard
 
 	// Retrieve RegisterRequest from database
-	request, err := getRegisterRequestFromDatabase(id)
+	request, err = getRegisterRequestFromDatabase(id)
 	if err != nil {
 		return internal.PopulatedDashboard{}, err
 	}
@@ -67,46 +67,49 @@ func getPopulatedDashboard(id string) (internal.PopulatedDashboard, error) {
 	populated.Country = request.Country
 	populated.IsoCode = request.IsoCode
 	populated.LastRetrieval = time.Now()
+	countryInfo, err := resources.GetRestCountries(request.Country, request.IsoCode)
 
 	// Populate features based on what's enabled
 	if request.Features.Temperature {
 		populated.Features.Temperature, err = fetchTemperature(request.Country)
 		if err != nil {
-			return internal.PopulatedDashboard{}, err
+			return populated, err
 		}
 	}
 	if request.Features.Precipitation {
 		populated.Features.Precipitation, err = fetchPrecipitation(request.Country)
 		if err != nil {
-			return internal.PopulatedDashboard{}, err
+			return populated, err
 		}
 	}
 	if request.Features.Capital {
-		populated.Features.Capital, err = fetchCapital(request.Country)
+		populated.Features.Capital = countryInfo.Capital[0]
 		if err != nil {
 			return internal.PopulatedDashboard{}, err
 		}
 	}
 	if request.Features.Coordinates {
-		populated.Features.Coordinates.Latitude, populated.Features.Coordinates.Longitude, err = fetchCoordinates(request.Country)
+		populated.Features.Coordinates.Latitude,
+			populated.Features.Coordinates.Longitude,
+			err = fetchCoordinates(request.Country)
 		if err != nil {
 			return internal.PopulatedDashboard{}, err
 		}
 	}
 	if request.Features.Population {
-		populated.Features.Population, err = fetchPopulation(request.Country)
+		populated.Features.Population = countryInfo.Population
 		if err != nil {
 			return internal.PopulatedDashboard{}, err
 		}
 	}
 	if request.Features.Area {
-		populated.Features.Area, err = fetchArea(request.Country)
+		populated.Features.Area = countryInfo.Area
 		if err != nil {
 			return internal.PopulatedDashboard{}, err
 		}
 	}
 	if len(request.Features.TargetCurrencies) > 0 {
-		populated.Features.TargetCurrencies, err = fetchTargetCurrencies(request.Features.TargetCurrencies)
+		// populated.Features.TargetCurrencies = countryInfo.Currencies[0]
 		if err != nil {
 			return internal.PopulatedDashboard{}, err
 		}
@@ -126,31 +129,7 @@ func fetchPrecipitation(country string) (float64, error) {
 	return 12.4, nil // Placeholder
 }
 
-func fetchCapital(country string) (string, error) {
-	// Fetch capital city
-	return "Capital City", nil // Placeholder
-}
-
 func fetchCoordinates(country string) (float32, float32, error) {
 	// Fetch coordinates
 	return 34.05, -118.25, nil // Placeholder
-}
-
-func fetchPopulation(country string) (int, error) {
-	// Fetch population data
-	return 5000000, nil // Placeholder
-}
-
-func fetchArea(country string) (float64, error) {
-	// Fetch area data
-	return 123456.78, nil // Placeholder
-}
-
-func fetchTargetCurrencies(currencies []string) (map[string]float64, error) {
-	// Fetch exchange rates for given currencies
-	exchangeRates := make(map[string]float64)
-	for _, currency := range currencies {
-		exchangeRates[currency] = 1.23 // Placeholder
-	}
-	return exchangeRates, nil
 }
