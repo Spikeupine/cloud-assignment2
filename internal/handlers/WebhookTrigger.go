@@ -57,10 +57,10 @@ func invokeWebhook(url string, data internal.Webhook) {
 func EventWebhook(w http.ResponseWriter, iso string, method string) {
 	webhooks, err := database.GetAllWebhooks(w, "webhooks")
 	if err != nil {
-		println("Wrong wrong registerWebhook!!")
+		http.Error(w, "Error when putting webhooks in list in WebhookTrigger :"+err.Error(), http.StatusInternalServerError)
 	} else {
 		for _, webhook := range webhooks {
-			if webhook.Country == iso || webhook.Country == "" && webhook.Event == method {
+			if webhook.Country == iso || iso == "" && webhook.Event == method {
 				switch webhook.Event {
 				case "REGISTER":
 					IncrementCallCount(w, webhook)
