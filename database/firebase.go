@@ -28,8 +28,11 @@ func GetContext() context.Context {
 // FirebaseConnect establishes the connection to firebase
 func FirebaseConnect() {
 	ctx = context.Background()
-	pathToCredentials := "./firebase_privatekey.json"
-	opt := option.WithCredentialsFile(pathToCredentials)
+	key, exists := os.LookupEnv("FIREBASE_KEY")
+	if !exists {
+		log.Fatal("FIREBASE_KEY environment variable not set")
+	}
+	opt := option.WithCredentialsFile(key)
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Println("Couldn't establish connection to firebase: " + err.Error())
@@ -38,7 +41,7 @@ func FirebaseConnect() {
 	// Instantiate client
 	client, err = app.Firestore(ctx)
 	if err != nil {
-		log.Println("Couldn't establish connection to the database" + err.Error())
+		log.Println("Couldn't establish connection to the database: " + err.Error())
 		os.Exit(1)
 	}
 }
