@@ -6,7 +6,7 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-firebase_privatekey.json
+.secrets/firebase_privatekey.json
 **/.idea/
 **/.secrets/
 .env
