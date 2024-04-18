@@ -3,6 +3,7 @@ package handlers
 import (
 	"assignment-2/database"
 	"assignment-2/external"
+	"assignment-2/external/router"
 	"assignment-2/internal"
 	"encoding/json"
 	"net/http"
@@ -24,15 +25,13 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "error retrieving populated dashboard: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		resp, err := json.Marshal(dashboard)
 		if err != nil {
 			http.Error(w, "error encoding response: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(resp)
+		err = json.NewEncoder(w).Encode(dashboard)
 		if err != nil {
 			http.Error(w, "error encoding response: "+err.Error(), http.StatusInternalServerError)
 		}
@@ -74,17 +73,17 @@ func populateDashboardFeatures(dashboard *internal.PopulatedDashboard, registry 
 	dashboard.Country = registry.Country
 	dashboard.IsoCode = registry.IsoCode
 	dashboard.LastRetrieval = time.Now()
-	countryInfo, err := external.GetCountriesObject(registry.Country, registry.IsoCode)
+	countryInfo, err := router.GetCountriesObject(registry.Country, registry.IsoCode)
 	if err != nil {
 		return err
 	}
 	currency := getFirstCurrency(countryInfo)
-	currencyInfo, err := external.GetCurrencyObject(currency)
+	currencyInfo, err := router.GetCurrencyObject(currency)
 	if err != nil {
 		return err
 	}
 	coordinates := extractCoordinates(countryInfo)
-	meteoData, err := external.GetMeteoObject(coordinates.Latitude, coordinates.Longitude)
+	meteoData, err := router.GetMeteoObject(coordinates.Latitude, coordinates.Longitude)
 	if err != nil {
 		return err
 	}

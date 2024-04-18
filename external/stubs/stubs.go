@@ -4,47 +4,63 @@ import (
 	"assignment-2/external"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 )
 
-func readStubFile(filePath string) []byte {
+func readStubFile(filePath string) ([]byte, error) {
+	log.Println(os.Getwd())
 	file, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Printf("File error: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
-	return file
+	log.Println("Reading stub file", filePath)
+	return file, nil
 }
 
-func MeteoStub() external.MeteoObject {
+func MeteoStub() (external.MeteoObject, error) {
 	var meteoData external.MeteoObject
-	meteoFile := readStubFile("./data/meteoWeather.json")
-	err := json.Unmarshal(meteoFile, &meteoData)
+	path := filepath.Clean(external.StubDataPath + "meteoWeather.json")
+	meteoFile, err := readStubFile(path)
 	if err != nil {
-		fmt.Printf("File parse error: %v\n", err)
-		os.Exit(1)
+		return meteoData, err
 	}
-	return meteoData
+	err = json.Unmarshal(meteoFile, &meteoData)
+	if err != nil {
+		log.Printf("File parse error: %v\n", err)
+		return external.MeteoObject{}, err
+	}
+	return meteoData, nil
 }
 
-func CurrencyStub() external.CurrencyObject {
+func CurrencyStub() (external.CurrencyObject, error) {
 	var currency external.CurrencyObject
-	currencyFile := readStubFile("./data/currencies.json")
-	err := json.Unmarshal(currencyFile, &currency)
+	path := filepath.Clean(external.StubDataPath + "currencies.json")
+	currencyFile, err := readStubFile(path)
 	if err != nil {
-		fmt.Printf("File parse error: %v\n", err)
-		os.Exit(1)
+		return external.CurrencyObject{}, err
 	}
-	return currency
+	err = json.Unmarshal(currencyFile, &currency)
+	if err != nil {
+		log.Printf("File parse error: %v\n", err)
+		return external.CurrencyObject{}, err
+	}
+	return currency, nil
 }
 
-func CountryStub() external.CountriesObject {
+func CountryStub() (external.CountriesObject, error) {
 	var country external.CountriesObject
-	countryFile := readStubFile("./data/countriesAPI.json")
-	err := json.Unmarshal(countryFile, &country)
+	path := filepath.Clean(external.StubDataPath + "countriesAPI.json")
+	countryFile, err := readStubFile(path)
 	if err != nil {
-		fmt.Printf("File parse error: %v\n", err)
-		os.Exit(1)
+		return external.CountriesObject{}, err
 	}
-	return country
+	err = json.Unmarshal(countryFile, &country)
+	if err != nil {
+		log.Printf("File parse error: %v\n", err)
+		return external.CountriesObject{}, err
+	}
+	return country, nil
 }

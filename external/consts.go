@@ -14,3 +14,5 @@ const CountriesFields = "fields=name,cca2,capitalInfo,population,area,currencies
 const MeteoApi = "https://api.open-meteo.com/v1/forecast?"
 
 const MeteoField = "latitude=%f&longitude=%f&hourly=temperature_2m,precipitation&wind_speed_unit=ms&timeformat=unixtime&forecast_days=1"
+
+const StubDataPath = "external/stubs/data/"
