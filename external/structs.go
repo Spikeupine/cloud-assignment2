@@ -3,7 +3,7 @@ package external
 type MeteoObject struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
-	Time      Weather `json:"hourly"`
+	Weather   Weather `json:"hourly"`
 }
 
 type Weather struct {

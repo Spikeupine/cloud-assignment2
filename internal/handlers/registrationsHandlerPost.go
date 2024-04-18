@@ -41,6 +41,21 @@ func registerDashboard(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+func createPopulatedDashboard(registration internal.RegisterRequest) (internal.PopulatedDashboard, error) {
+	var dashboard internal.PopulatedDashboard
+	// Assign data from registration to the dashboard
+	dashboard.Country = registration.Country
+	dashboard.IsoCode = registration.IsoCode
+	// Additional fields can be populated here based on registration details
+
+	// Save the populated dashboard in Firestore or another appropriate location
+	_, err := database.GetClient().Collection("populatedDashboards").Doc(registration.Id).Set(database.GetContext(), dashboard)
+	if err != nil {
+		return internal.PopulatedDashboard{}, err
+	}
+	return dashboard, nil
+}
+
 // uploadDashboard uploads a dashboard to firestore
 func uploadDashboard(dashboard internal.RegisterRequest) (internal.RegistrationsResponse, error) {
 	client := database.GetClient()
