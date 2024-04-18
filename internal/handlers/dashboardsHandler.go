@@ -97,10 +97,10 @@ func populateDashboardFeatures(dashboard *internal.PopulatedDashboard, registry 
 	meteoWeather := meteoData.Weather
 
 	// Populate features based on what's enabled
-	if registry.Features.Temperature {
+	if registry.Features.Temperature && len(meteoWeather.Temperature) > 0 {
 		dashboard.Features.Temperature = meteoWeather.Temperature[0]
 	}
-	if registry.Features.Precipitation {
+	if registry.Features.Precipitation && len(meteoWeather.Precipitation) > 0 {
 		dashboard.Features.Precipitation = meteoWeather.Precipitation[0]
 	}
 	if registry.Features.Capital && len(countryInfo.Capital) > 0 {
