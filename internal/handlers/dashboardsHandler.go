@@ -73,6 +73,7 @@ func populateDashboardFeatures(dashboard *internal.PopulatedDashboard, registry 
 	dashboard.Country = registry.Country
 	dashboard.IsoCode = registry.IsoCode
 	dashboard.LastRetrieval = time.Now()
+	dashboard.Features.TargetCurrencies = make(map[string]float64)
 	countryInfo, err := router.GetCountriesObject(registry.Country, registry.IsoCode)
 	if err != nil {
 		return err
@@ -109,7 +110,8 @@ func populateDashboardFeatures(dashboard *internal.PopulatedDashboard, registry 
 	}
 	if len(registry.Features.TargetCurrencies) > 0 {
 		for _, targetCurrency := range registry.Features.TargetCurrencies {
-			dashboard.Features.TargetCurrencies[targetCurrency] = currencyInfo.Rates[targetCurrency]
+			rates := currencyInfo.Rates[targetCurrency]
+			dashboard.Features.TargetCurrencies[targetCurrency] = rates
 		}
 	}
 	return nil
