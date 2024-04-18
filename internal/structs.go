@@ -7,22 +7,6 @@ import (
 	"time"
 )
 
-// Struct for holding information about country from restcountries API.
-type RestCountriesStruct struct {
-	Name        string                  `json:"common"`
-	Iso         string                  `json:"cca2"`
-	Population  int                     `json:"population"`
-	Capital     []string                `json:"capital"`
-	Currencies  map[string]CurrencyInfo `json:"currencies"` // Change the data type to a map
-	Coordinates []float64               `json:"latlng"`
-}
-
-// CurrencyInfo Defines a separate struct for currency information
-type CurrencyInfo struct {
-	Name   string `json:"name"`
-	Symbol string `json:"symbol"`
-}
-
 type RegistrationsResponse struct {
 	Id         string
 	LastChange time.Time
@@ -44,10 +28,6 @@ type RegisterRequest struct {
 	IsoCode    string    `json:"isoCode"`
 	LastChange time.Time `json:"lastChange"`
 	Features   Features
-}
-
-type RegisterMap struct {
-	Registers map[string]RegisterRequest `json:"registers"`
 }
 
 type Basics struct {
@@ -97,6 +77,6 @@ type DashboardFeatures struct {
 }
 
 type DashboardCoordinates struct {
-	Latitude  float32 `json:"latitude,omitempty"`
-	Longitude float32 `json:"longitude,omitempty"`
+	Latitude  float64 `json:"latitude,omitempty"`
+	Longitude float64 `json:"longitude,omitempty"`
 }

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"assignment-2/database"
-	"assignment-2/external/resources"
+	"assignment-2/external"
 	"assignment-2/internal"
 	"encoding/json"
 	"net/http"
@@ -32,7 +32,10 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write(resp)
+		err = json.NewEncoder(w).Encode(resp)
+		if err != nil {
+			http.Error(w, "error encoding response: "+err.Error(), http.StatusInternalServerError)
+		}
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -54,82 +57,75 @@ func getRegisterRequestFromDatabase(id string) (internal.RegisterRequest, error)
 
 // Function to fetch data for each enabled feature
 func getPopulatedDashboard(id string) (populated internal.PopulatedDashboard, err error) {
-	var request internal.RegisterRequest
-
+	var register internal.RegisterRequest
 	// Retrieve RegisterRequest from database
-	request, err = getRegisterRequestFromDatabase(id)
+	register, err = getRegisterRequestFromDatabase(id)
 	if err != nil {
 		return internal.PopulatedDashboard{}, err
 	}
+	err = populateDashboardFeatures(&populated, register)
 
+	return populated, err
+}
+
+func populateDashboardFeatures(dashboard *internal.PopulatedDashboard, registry internal.RegisterRequest) (err error) {
 	// Start populating PopulatedDashboard
-	populated.ID = request.Id
-	populated.Country = request.Country
-	populated.IsoCode = request.IsoCode
-	populated.LastRetrieval = time.Now()
-	countryInfo, err := resources.GetRestCountries(request.Country, request.IsoCode)
+	dashboard.ID = registry.Id
+	dashboard.Country = registry.Country
+	dashboard.IsoCode = registry.IsoCode
+	dashboard.LastRetrieval = time.Now()
+	countryInfo, err := external.GetCountriesObject(registry.Country, registry.IsoCode)
+	if err != nil {
+		return err
+	}
+	currency := getFirstCurrency(countryInfo)
+	currencyInfo, err := external.GetCurrencyObject(currency)
+	if err != nil {
+		return err
+	}
+	coordinates := extractCoordinates(countryInfo)
+	meteoData, err := external.GetMeteoObject(coordinates.Latitude, coordinates.Longitude)
+	if err != nil {
+		return err
+	}
+	meteoWeather := meteoData.Weather
 
 	// Populate features based on what's enabled
-	if request.Features.Temperature {
-		populated.Features.Temperature, err = fetchTemperature(request.Country)
-		if err != nil {
-			return populated, err
+	if registry.Features.Temperature {
+		dashboard.Features.Temperature = meteoWeather.Temperature[0]
+	}
+	if registry.Features.Precipitation {
+		dashboard.Features.Precipitation = meteoWeather.Precipitation[0]
+	}
+	if registry.Features.Capital {
+		dashboard.Features.Capital = countryInfo.Capital[0]
+	}
+	if registry.Features.Coordinates {
+	}
+	if registry.Features.Population {
+		dashboard.Features.Population = countryInfo.Population
+	}
+	if registry.Features.Area {
+		dashboard.Features.Area = countryInfo.Area
+	}
+	if len(registry.Features.TargetCurrencies) > 0 {
+		for _, targetCurrency := range registry.Features.TargetCurrencies {
+			dashboard.Features.TargetCurrencies[targetCurrency] = currencyInfo.Rates[targetCurrency]
 		}
 	}
-	if request.Features.Precipitation {
-		populated.Features.Precipitation, err = fetchPrecipitation(request.Country)
-		if err != nil {
-			return populated, err
-		}
-	}
-	if request.Features.Capital {
-		populated.Features.Capital = countryInfo.Capital[0]
-		if err != nil {
-			return internal.PopulatedDashboard{}, err
-		}
-	}
-	if request.Features.Coordinates {
-		populated.Features.Coordinates.Latitude,
-			populated.Features.Coordinates.Longitude,
-			err = fetchCoordinates(request.Country)
-		if err != nil {
-			return internal.PopulatedDashboard{}, err
-		}
-	}
-	if request.Features.Population {
-		populated.Features.Population = countryInfo.Population
-		if err != nil {
-			return internal.PopulatedDashboard{}, err
-		}
-	}
-	if request.Features.Area {
-		populated.Features.Area = countryInfo.Area
-		if err != nil {
-			return internal.PopulatedDashboard{}, err
-		}
-	}
-	if len(request.Features.TargetCurrencies) > 0 {
-		// populated.Features.TargetCurrencies = countryInfo.Currencies[0]
-		if err != nil {
-			return internal.PopulatedDashboard{}, err
-		}
-	}
-
-	return populated, nil
+	return nil
 }
 
-// Mock fetch functions (replace these with actual data fetching logic)
-func fetchTemperature(country string) (float64, error) {
-	// Fetch temperature data
-	return 23.5, nil // Placeholder
+func getFirstCurrency(countryObject external.CountriesObject) string {
+	for currency, _ := range countryObject.Currencies {
+		return currency
+	}
+	return ""
 }
 
-func fetchPrecipitation(country string) (float64, error) {
-	// Fetch precipitation data
-	return 12.4, nil // Placeholder
-}
-
-func fetchCoordinates(country string) (float32, float32, error) {
-	// Fetch coordinates
-	return 34.05, -118.25, nil // Placeholder
+func extractCoordinates(countryInfo external.CountriesObject) internal.DashboardCoordinates {
+	var coordinates internal.DashboardCoordinates
+	coordinates.Longitude = countryInfo.Location.Latlng[0]
+	coordinates.Latitude = countryInfo.Location.Latlng[1]
+	return coordinates
 }

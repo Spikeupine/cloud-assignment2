@@ -2,7 +2,6 @@ package resources
 
 import (
 	"assignment-2/external"
-	"assignment-2/internal"
 	"encoding/json"
 	"fmt"
 )
@@ -24,6 +23,6 @@ long Longitude
 returns the MeteoURL for the given coordinates
 */
 func GetMeteoUrl(lat float64, long float64) string {
-	arguments := fmt.Sprintf(internal.MeteoField, lat, long)
-	return internal.MeteoApi + arguments
+	arguments := fmt.Sprintf(external.MeteoField, lat, long)
+	return external.MeteoApi + arguments
 }
