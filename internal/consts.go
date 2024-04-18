@@ -1,7 +1,5 @@
 package internal
 
-import "fmt"
-
 // API's
 // Link to the countries api
 const CountriesApi = "http://129.241.150.113:8080/v3.1/"
@@ -40,14 +38,3 @@ const ApplicationJson = "Content type"
 const IsoExample = "alpha?codes=no"
 const TestEndpoint = "/tests/v1/"
 const CountriesEndpoint = TestEndpoint + "countries/"
-
-/*
-GetMeteoUrl
-lat Latitude
-long Longitude
-returns the MeteoURL for the given coordinates
-*/
-func GetMeteoUrl(lat float64, long float64) string {
-	arguments := fmt.Sprintf(MeteoField, lat, long)
-	return MeteoApi + arguments
-}
