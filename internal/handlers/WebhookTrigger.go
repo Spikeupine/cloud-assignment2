@@ -9,6 +9,12 @@ import (
 	"net/http"
 )
 
+/*
+	The webhooks part of this assignment is inspired by last year's delivery from Mathias Iversen, Oda Steinsholt and
+	Eirik Gjertsen. The webhooks part of the code was written by Mathias Iversen, and our use of these parts is blessed
+	by him. For project, please see link: https://git.gvk.idi.ntnu.no/course/prog2005/prog2005-2023-workspace/mathiaiv/assignment-2
+*/
+
 // IncrementCallCount increments all webhooks that is subscribing to the countryCode
 func IncrementCallCount(w http.ResponseWriter, webhook internal.Webhook) {
 
