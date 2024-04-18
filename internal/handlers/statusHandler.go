@@ -24,6 +24,12 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to get webhook count", http.StatusInternalServerError)
 		return
 	}
+	firestoreStatusCode := http.StatusOK
+	webhooksCount, err = database.GetNumberOfDocuments("webhooks")
+	if err != nil {
+		firestoreStatusCode = http.StatusNotFound
+	}
+	response.NotificationDB = firestoreStatusCode
 	response.Webhooks = webhooksCount
 	response.Version = "v1"
 	response.Uptime = int64(time.Since(serviceStartTime).Seconds())
