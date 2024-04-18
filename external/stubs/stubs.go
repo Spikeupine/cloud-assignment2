@@ -3,20 +3,17 @@ package stubs
 import (
 	"assignment-2/external"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 )
 
 func readStubFile(filePath string) ([]byte, error) {
-	log.Println(os.Getwd())
 	file, err := os.ReadFile(filePath)
 	if err != nil {
-		fmt.Printf("File error: %v\n", err)
+		log.Printf("File error: %v\n", err)
 		return nil, err
 	}
-	log.Println("Reading stub file", filePath)
 	return file, nil
 }
 
