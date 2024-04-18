@@ -4,14 +4,22 @@ import (
 	"assignment-2/database"
 	"assignment-2/internal"
 	"assignment-2/internal/handlers"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
 )
 
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file" + err.Error())
+	}
+	database.FirebaseConnect()
+}
+
 // This is the start point of the entire service.
 func main() {
-	database.FirebaseConnect()
 	//Gets the port from the environment. If empty, sets it to 8080 as default.
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -26,6 +34,9 @@ func main() {
 	http.HandleFunc(internal.RegistrationsPath+"{id}", handlers.RegistrationsHandler)
 	http.HandleFunc(internal.DashboardsPath, handlers.DashboardsHandler)
 	http.HandleFunc(internal.DashboardsPath+"{id}", handlers.DashboardsHandler)
+	http.HandleFunc(internal.NotificationsPath, handlers.NotificationsHandler)
+	http.HandleFunc(internal.NotificationsPath+"{id}", handlers.NotificationsHandler)
+
 	// Starts the server
 	log.Println("Starting server on http://localhost:" + port + " ...")
 	log.Printf("Firestore REST service listening on %s ...\n", addr)

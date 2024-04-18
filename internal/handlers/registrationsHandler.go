@@ -21,6 +21,7 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		pathValue := r.PathValue("id")
 		if pathValue == "" {
+			EventWebhook(w, "", "INVOKE")
 			registrations, err := getAllRegistrations()
 			if err != nil {
 				http.Error(w, "error retrieving data"+err.Error(), http.StatusInternalServerError)
@@ -38,6 +39,7 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "error encoding document"+err.Error(), http.StatusInternalServerError)
 				return
 			}
+			EventWebhook(w, document.IsoCode, "INVOKE")
 		}
 	case http.MethodPost:
 		err := registerDashboard(w, r)
@@ -68,6 +70,8 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
+		EventWebhook(w, updatedRegistration.IsoCode, "CHANGE")
+
 		// Makes sure the ID isn't overwritten
 		updatedRegistration.Id = id
 		updatedRegistration.LastChange = time.Now()
@@ -82,7 +86,24 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 		firestoreClient := database.GetClient()
 
 		// Delete the registration document from Firestore based on the provided ID.
-		_, err := firestoreClient.Collection("dashboards").Doc(id).Delete(r.Context())
+		firestore := firestoreClient.Collection("dashboards").Doc(id)
+		document, err := firestore.Get(r.Context())
+		if err != nil {
+			http.Error(w, "Error when retrieving specified dashboard by id :"+err.Error(), http.StatusNotFound)
+			return
+		}
+		type isoCodeForWebhook struct {
+			IsoCode string `json:"isoCode"`
+			Method  string
+		}
+
+		var actualIsoCodeForWebhook isoCodeForWebhook
+		actualIsoCodeForWebhook.Method = "DELETE"
+		if err := document.DataTo(&actualIsoCodeForWebhook); err != nil {
+			http.Error(w, "Error when parsing country information for webhook check :"+err.Error(), http.StatusServiceUnavailable)
+		}
+		EventWebhook(w, actualIsoCodeForWebhook.IsoCode, actualIsoCodeForWebhook.Method)
+		_, err = firestore.Delete(r.Context())
 		if err != nil {
 			http.Error(w, "Error deleting registration: "+err.Error(), http.StatusInternalServerError)
 			return

@@ -59,6 +59,15 @@ type Basics struct {
 	ID             string
 }
 
+// Webhook is used when we register webhooks for notifications endpoint
+type Webhook struct {
+	WebhookId string `json:"webhook_id,omitempty" firebase:"webhook_id"`
+	Url       string `json:"url" firebase:"url"`
+	Country   string `json:"iso" firebase:"iso"`
+	Event     string `json:"event,omitempty" firebase:"event"`
+	Calls     int    `json:"calls" firebase:"calls"`
+}
+
 type Status struct {
 	CountriesAPI   int    `json:"countries_api"`
 	MeteoAPI       int    `json:"meteo_api"`

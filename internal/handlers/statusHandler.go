@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"assignment-2/database"
 	"assignment-2/internal"
 	"encoding/json"
 	"net/http"
@@ -18,6 +19,12 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	response.CountriesAPI = getAPIStatus(internal.CountriesApi + internal.IsoExample)
 	response.MeteoAPI = getAPIStatus(internal.MeteoApi)
 	response.CurrencyAPI = getAPIStatus(internal.CurrencyApi + "nok")
+	webhooksCount, err := database.CountWebhooks("webhooks")
+	if err != nil {
+		http.Error(w, "Failed to get webhook count", http.StatusInternalServerError)
+		return
+	}
+	response.Webhooks = webhooksCount
 	response.Version = "v1"
 	response.Uptime = int64(time.Since(serviceStartTime).Seconds())
 

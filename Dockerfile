@@ -11,7 +11,6 @@ COPY ./cmd /go/src/app/cmd
 COPY ./database /go/src/app/database
 COPY ./external /go/src/app/external
 COPY ./internal /go/src/app/internal
-COPY ./firebase_privatekey.json /go/src/app
 #Download go mod dependencies
 COPY ./go.mod  /go/src/app
 COPY ./go.sum /go/src/app

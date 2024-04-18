@@ -38,3 +38,9 @@ const ApplicationJson = "Content type"
 const IsoExample = "alpha?codes=no"
 const TestEndpoint = "/tests/v1/"
 const CountriesEndpoint = TestEndpoint + "countries/"
+
+// Id as a const, to insert in different urls. Specifies where user input should be.
+const Id = "id"
+
+// Empty string
+const Empty = ""
