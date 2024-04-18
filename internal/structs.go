@@ -67,13 +67,13 @@ type PopulatedDashboard struct {
 }
 
 type DashboardFeatures struct {
-	Temperature      float64              `json:"temperature,omitempty"`
-	Precipitation    float64              `json:"precipitation,omitempty"`
-	Capital          string               `json:"capital,omitempty"`
-	Coordinates      DashboardCoordinates `json:"coordinates,omitempty"`
-	Population       int                  `json:"population,omitempty"`
-	Area             float64              `json:"area,omitempty"`
-	TargetCurrencies map[string]float64   `json:"targetCurrencies,omitempty"`
+	Temperature      float64               `json:"temperature,omitempty"`
+	Precipitation    float64               `json:"precipitation,omitempty"`
+	Capital          string                `json:"capital,omitempty"`
+	Coordinates      *DashboardCoordinates `json:"coordinates,omitempty"`
+	Population       int                   `json:"population,omitempty"`
+	Area             float64               `json:"area,omitempty"`
+	TargetCurrencies map[string]float64    `json:"targetCurrencies,omitempty"`
 }
 
 type DashboardCoordinates struct {
