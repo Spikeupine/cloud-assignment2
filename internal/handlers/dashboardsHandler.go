@@ -78,6 +78,12 @@ func populateDashboardFeatures(dashboard *internal.PopulatedDashboard, registry 
 	if err != nil {
 		return err
 	}
+	if dashboard.IsoCode == "" {
+		dashboard.IsoCode = countryInfo.Cca2
+	}
+	if dashboard.Country == "" {
+		dashboard.Country = countryInfo.Name.Common
+	}
 	currency := getFirstCurrency(countryInfo)
 	currencyInfo, err := router.GetCurrencyObject(currency)
 	if err != nil {
@@ -97,7 +103,7 @@ func populateDashboardFeatures(dashboard *internal.PopulatedDashboard, registry 
 	if registry.Features.Precipitation {
 		dashboard.Features.Precipitation = meteoWeather.Precipitation[0]
 	}
-	if registry.Features.Capital {
+	if registry.Features.Capital && len(countryInfo.Capital) > 0 {
 		dashboard.Features.Capital = countryInfo.Capital[0]
 	}
 	if registry.Features.Coordinates {
