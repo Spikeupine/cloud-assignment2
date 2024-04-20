@@ -266,6 +266,97 @@ func TestGetWebhooks(t *testing.T) {
 
 }
 
+func TestGetWebhook(t *testing.T) {
+	err := godotenv.Load()
+	if err != nil {
+		os.Exit(1)
+	}
+	database.FirebaseConnect()
+
+	server := httptest.NewServer(http.HandlerFunc(handlers.NotificationsHandler))
+
+	//Here I am creating a webhook to perform test on.
+	WebhookRegistration := internal.Webhook{
+		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
+		Country: "TestTestTest",
+		Event:   "INVOKE",
+	}
+
+	// marshals the webhook registration so it is as json.
+	body, err := json.Marshal(WebhookRegistration)
+
+	//Specified the url to use in request.
+	url := server.URL
+
+	//Initializes client.
+	client := http.Client{}
+
+	// This recorder will record http errors for example.
+	rec := httptest.NewRecorder()
+
+	//sending the http request post to testserver url notifications handler with body of new webhook to be registered.
+	responseRegistration, err := client.Post(url, "Content type: application/json", bytes.NewBuffer(body))
+	if err != nil {
+		t.Errorf("errer" + err.Error())
+	}
+
+	var webhookRegistration internal.Webhook
+
+	// Decodes the responsebody into webhook struct.
+	err = json.NewDecoder(responseRegistration.Body).Decode(&webhookRegistration)
+	if err != nil {
+		t.Errorf("Error in getting response from posting new webhook " + err.Error())
+		t.Fatal()
+	}
+
+	//Uses the request from registered response to make a new webhook registration. It is put into webhooks in firebase.
+	handlers.WebhookRegistration(rec, responseRegistration.Request, "webhooks")
+
+	newurl := server.URL + "/" + webhookRegistration.WebhookId
+
+	//Here the id of the webhook is registered in the list of webhooks created within test environment, to be deleted
+	//after test.
+	registerTestingId(webhookRegistration.WebhookId)
+
+	//sends get-request wit url that has webhook id.
+	requestToGet := httptest.NewRequest(http.MethodGet, newurl, nil)
+
+	//initializes recorder to record the responses
+	record := httptest.NewRecorder()
+
+	//Calls method from notification handler to get the webhook. Response is recorded to record.
+	handlers.GetWebhook(record, "webhooks", requestToGet, webhookRegistration.WebhookId)
+
+	//Instatiates assert, so that we can compare our results to what we expect.
+	asrt := assert.New(t)
+
+	asrt.Equal(http.StatusOK, record.Code)
+
+	wrongUrl := server.URL + "/" + "nonesense123"
+
+	//Sends request of if that should not pass
+	newRequestGet := httptest.NewRequest(http.MethodGet, wrongUrl, nil)
+
+	//initializes recorder to record the responses
+	recordNew := httptest.NewRecorder()
+
+	//Calls method from notification handler to get the webhook. Response is recorded to record. Nonesense
+	// webhook id is passed on as parameter.
+	handlers.GetWebhook(recordNew, "webhooks", newRequestGet, "nonesense123")
+
+	// As it is a bad request, recorder should return bas request, as expected.
+	asrt.Equal(http.StatusBadRequest, recordNew.Code)
+
+	recordAnew := httptest.NewRecorder()
+
+	//Testing what happens when the GetWebhook method is called with empty webhook id.
+	handlers.GetWebhook(recordAnew, "webhooks", newRequestGet, "")
+
+	//Should return StatusBadRequest, checks with recorder.
+	asrt.Equal(http.StatusBadRequest, recordAnew.Code)
+
+}
+
 // TestDeleteWebhook deletes the webhooks that has been added to the collection of webhook id's within this test file.
 // It ranges over this list, and deletes them by creating http DELETE requests, and passing this as parameter to
 // DeleteWebhook method of handler. The recorded http status code is then later compared, and a get request to the
