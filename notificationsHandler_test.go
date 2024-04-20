@@ -31,6 +31,10 @@ func getIds() []string {
 	return SeveralIds
 }
 
+func allIdsDeleted() {
+	SeveralIds = []string{}
+}
+
 func TestMain(m *testing.M) {
 	err := godotenv.Load()
 	exitcode := m.Run()
@@ -159,13 +163,23 @@ func TestDeleteWebhook(t *testing.T) {
 		asrt := assert.New(t)
 
 		asrt.Equal(webhook, internal.Webhook{})
+		asrt.Equal(testHookDelete.WebhookId, "")
 
 	}
+
+	url := server.URL
+	respondent, err := client.Post(url, http.MethodDelete, nil)
+
+	handlers.DeleteWebhook(rec, respondent.Request, "webhooks", "")
+
+	asrt := assert.New(t)
+	asrt.Equal(http.StatusBadRequest, rec.Code)
+
+	allIdsDeleted()
+
+	asrt.Empty(SeveralIds, "Expect no more IDs in the list of registered webhooks within test file")
 }
 
+func TestGetWebhooks(t *testing.T) {
 
-
-
-
-
-
+}

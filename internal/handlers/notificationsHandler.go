@@ -77,13 +77,17 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 // DeleteWebhook handles DELETE method, and deletes the webhook with specified if from database.
 func DeleteWebhook(w http.ResponseWriter, r *http.Request, collectionName string, webhookId string) {
 
-	// deletes the webhook
-	err, sc := database.DeleteTheWebhook(collectionName, webhookId)
-	if err != nil {
-		http.Error(w, "Error when deleting webhook with id '"+webhookId+"' :"+err.Error(), sc)
-	}
-	if sc == 0 {
-		println("successfully deleted")
+	if webhookId != "" {
+		// deletes the webhook
+		err, sc := database.DeleteTheWebhook(collectionName, webhookId)
+		if err != nil {
+			http.Error(w, "Error when deleting webhook with id '"+webhookId+"' :"+err.Error(), sc)
+		}
+		if sc == 0 {
+			println("successfully deleted")
+		}
+	} else {
+		http.Error(w, "Error in DeleteWebhook: Id cannot be empty ", http.StatusBadRequest)
 	}
 }
 
