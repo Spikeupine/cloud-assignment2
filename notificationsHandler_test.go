@@ -138,15 +138,16 @@ func TestDeleteWebhook(t *testing.T) {
 		t.Fatal()
 	}
 
-	handlers.WebhookRegistration(rec, response.Request, TestCollection)
+	handlers.WebhookRegistration(rec, response.Request, "webhooks")
 
-	//response := json.NewDecoder().Decode(&hook)
-
-	//handlers.DeleteWebhook(rec, response.Request, TestCollection, )
+	handlers.DeleteWebhook(rec, response.Request, "webhooks", hook.WebhookId)
 
 	// check test case results
+	webhook, errorWebhook := database.GetWebhook("webhooks", hook.WebhookId)
+
 	asrt := assert.New(t)
-	asrt.Equal("hest", "hest")
+	asrt.Equal(http.StatusNotFound, errorWebhook)
+	asrt.Equal(webhook, internal.Webhook{})
 
 }
 
