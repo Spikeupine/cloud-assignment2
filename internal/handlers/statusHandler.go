@@ -15,9 +15,12 @@ var serviceStartTime = time.Now()
 // StatusHandler gives us the status for each API
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8") // This sets the header for unsupported methods
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	w.Header().Set("Content-Type", internal.ContentTypeJson)
 
 	var response internal.Status
 
