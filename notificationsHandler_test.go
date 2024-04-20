@@ -142,10 +142,23 @@ func TestDeleteWebhook(t *testing.T) {
 
 	handlers.DeleteWebhook(rec, response.Request, "webhooks", hook.WebhookId)
 
-	response, err := client.Get(url, "Content type: application/json", bytes.NewBuffer(body))
+	url = server.URL + "/" + hook.WebhookId
+
+	response, err = client.Get(url)
 	//response, err := client.Post("https://localhost:8080/dashboards/v1/notifications/", "Content type: application/json", bytes.NewBuffer(body))
 	if err != nil {
 		t.Errorf("errer" + err.Error())
+	}
+	var testHookDelete internal.Webhook
+
+	err = json.NewDecoder(response.Body).Decode(&testHookDelete)
+	if err == nil {
+		t.Errorf("Error in deleting webhook, as we can retrieve it even after deletion" + err.Error())
+		t.Fatal()
+	}
+	err = handlers.GetWebhook(rec, "webhooks", response.Request, testHookDelete.WebhookId)
+	if err == nil {
+		t.Fatal()
 	}
 
 	// check test case results

@@ -30,7 +30,7 @@ func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 		if pathValue == internal.Empty {
 			GetWebhooks(w, r, collectionNameWebhooks)
 		} else {
-			getWebhook(w, collectionNameWebhooks, r, pathValue)
+			GetWebhook(w, collectionNameWebhooks, r, pathValue)
 		}
 	default:
 		http.Error(w, "Method '"+r.Method+"' not supported. Currently method '"+http.MethodPost+
@@ -105,7 +105,7 @@ func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) 
 
 }
 
-func getWebhook(w http.ResponseWriter, collectionName string, r *http.Request, webhookId string) error {
+func GetWebhook(w http.ResponseWriter, collectionName string, r *http.Request, webhookId string) error {
 
 	// Get webhook from database
 	webhook, err := database.GetWebhook(collectionName, webhookId)
