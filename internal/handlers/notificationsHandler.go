@@ -109,20 +109,20 @@ func GetWebhooks(w http.ResponseWriter, r *http.Request, collectionName string) 
 
 }
 
-func GetWebhook(w http.ResponseWriter, collectionName string, r *http.Request, webhookId string) error {
+func GetWebhook(w http.ResponseWriter, collectionName string, r *http.Request, webhookId string) {
 
 	// Get webhook from database
 	webhook, err := database.GetWebhook(collectionName, webhookId)
 	if err != nil {
 		http.Error(w, "Error when getting specified webhook: "+err.Error(), http.StatusBadRequest)
-		return err
+		return
 	}
 
 	// Encode the resulting webhook response
 	w.Header().Set(internal.ContentTypeJson, internal.ApplicationJson)
 	if err := json.NewEncoder(w).Encode(webhook); err != nil {
 		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
-		return err
+		return
 	}
-	return nil
+	return
 }

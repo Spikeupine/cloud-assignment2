@@ -16,17 +16,17 @@ import (
 
 var WebhookRegistration internal.Webhook
 
-//SeveralIds is responsible for holding the ids of webhooks created within this testfile. Gives control to delete them
+// SeveralIds is responsible for holding the ids of webhooks created within this testfile. Gives control to delete them
 // once the tests are over, and is also checked with assert empty to ensure this.
 var SeveralIds []string
 
-//registerTestingID takes in the id of the webhook that's registered in the system, and appends it to the list of
+// registerTestingID takes in the id of the webhook that's registered in the system, and appends it to the list of
 // webhooks registered from the test file.
 func registerTestingId(webhookId string) {
 	SeveralIds = append(SeveralIds, webhookId)
 }
 
-//Returns the list with webhook ids
+// Returns the list with webhook ids
 func getIds() []string {
 	return SeveralIds
 }
@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 	os.Exit(exitcode)
 }
 
-//TestWebhookRegistration runs tests on the registration of webhooks. It creates requests, and uses the requests in the
+// TestWebhookRegistration runs tests on the registration of webhooks. It creates requests, and uses the requests in the
 // methods to perform the different scenarios. Adds the webhooks it has registered to the list of webhooks made within
 // test file, for later deletion. It is its own method for code readability, and easier reading of where the tests
 // necessarily fail.
@@ -75,43 +75,61 @@ func TestWebhookRegistration(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(handlers.NotificationsHandler))
 	defer server.Close()
 
+	//Specified the url to use in request.
 	url := server.URL
 
 	//Initializes client.
 	client := http.Client{}
 
+	// This recorder will record http errors for example.
 	rec := httptest.NewRecorder()
 
+	//sending the http request post to testserver url notifications handler with body of new webhook to be registered.
 	responseRegistration, err := client.Post(url, "Content type: application/json", bytes.NewBuffer(body))
-	//response, err := client.Post("https://localhost:8080/dashboards/v1/notifications/", "Content type: application/json", bytes.NewBuffer(body))
 	if err != nil {
 		t.Errorf("errer" + err.Error())
 	}
 
+	// Decodes the responsebody into webhook struct.
 	err = json.NewDecoder(responseRegistration.Body).Decode(&WebhookRegistration)
 	if err != nil {
 		t.Errorf("Error in getting response from posting new webhook " + err.Error())
 		t.Fatal()
 	}
 
+	//Uses the request from registered response to make a new webhook registration. It is put into webhooks in firebase.
 	handlers.WebhookRegistration(rec, responseRegistration.Request, "webhooks")
 
 	newurl := server.URL + "/" + WebhookRegistration.WebhookId
 	println(newurl)
+
+	//Here the id of the webhook is registered in the list of webhooks created within test environment, to be deleted
+	//after test.
 	registerTestingId(WebhookRegistration.WebhookId)
 
-	responsehaha := httptest.NewRequest(http.MethodGet, newurl, bytes.NewBuffer(body))
+	requestToGet := httptest.NewRequest(http.MethodGet, newurl, nil)
 
-	var getHook internal.Webhook
+	record := httptest.NewRecorder()
 
-	err = json.NewDecoder(responsehaha.Body).Decode(&getHook)
-	if err != nil {
-		t.Errorf("Error in getting response from posting new webhook " + err.Error())
-		t.Fatal()
-	}
+	handlers.GetWebhook(record, "webhooks", requestToGet, WebhookRegistration.WebhookId)
+
+	asrt := assert.New(t)
+
+	asrt.Equal(http.StatusOK, record.Code)
+
+	badUrl := server.URL + "/" + "723kjk"
+
+	recordagain := httptest.NewRecorder()
+
+	requestToGetBad := httptest.NewRequest(http.MethodGet, badUrl, nil)
+
+	handlers.GetWebhook(recordagain, "webhooks", requestToGetBad, "723kjk")
+
+	asrt.Equal(http.StatusBadRequest, recordagain.Code)
+
 }
 
-//TestDeleteWebhook deletes the webhooks that has been added to the collection of webhook id's within this test file.
+// TestDeleteWebhook deletes the webhooks that has been added to the collection of webhook id's within this test file.
 // It ranges over this list, and deletes them by creating http DELETE requests, and passing this as parameter to
 // DeleteWebhook method of handler. The recorded http status code is then later compared, and a get request to the
 // individual webhooks is tried sent (and test is failed if it successfully manages to retrieve webhook supposed
@@ -153,10 +171,7 @@ func TestDeleteWebhook(t *testing.T) {
 			t.Errorf("Error in deleting webhook, as we can retrieve it even after deletion" + err.Error())
 			t.Fatal()
 		}
-		err = handlers.GetWebhook(rec, "webhooks", responseGetwebhook.Request, testHookDelete.WebhookId)
-		if err == nil {
-			t.Fatal()
-		}
+		handlers.GetWebhook(rec, "webhooks", responseGetwebhook.Request, testHookDelete.WebhookId)
 
 		// check test case results
 		webhook, errorWebhook := database.GetWebhook("webhooks", testHookDelete.WebhookId)
@@ -186,9 +201,8 @@ func TestDeleteWebhook(t *testing.T) {
 
 // TestGetWebhooks tests method of retrieving all the webhooks in the collection. Since this request goes to the actual
 // webhooks in firebase, we first register the number for how many there are now from GET request with unspecified id,
-//add a few, and then compare the number. For each webhook added, they are added to the list of webhooks created within
+// add a few, and then compare the number. For each webhook added, they are added to the list of webhooks created within
 // test file.
-//
 func TestGetWebhooks(t *testing.T) {
 
 }
