@@ -16,6 +16,7 @@ import (
 
 const TestCollection = "testWebhooks"
 
+/*
 func init() {
 	err := godotenv.Load()
 	if err != nil {
@@ -23,82 +24,91 @@ func init() {
 	}
 	err = os.Setenv("TESTING", "true")
 }
-func initData() ([]internal.Webhook, error) {
+*/
 
-	var listOfWebhook []internal.Webhook
-	//Here I am creating a webhook to perform test on.
-	hook := internal.Webhook{
-		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "NO",
-		Event:   "REGISTER",
-	}
-	listOfWebhook = append(listOfWebhook, hook)
-	hook1 := internal.Webhook{
-		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "ES",
-		Event:   "INVOKE",
-	}
-	listOfWebhook = append(listOfWebhook, hook1)
-
-	hook2 := internal.Webhook{
-		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "UK",
-		Event:   "DELETE",
-	}
-	listOfWebhook = append(listOfWebhook, hook2)
-
-	for _, webhook := range listOfWebhook {
-		err := database.AddWebhookToCollection(webhook, "webhooks")
-		if err != nil {
-			return []internal.Webhook{}, err
-		}
-	}
-	return listOfWebhook, nil
-}
-
-func deleteWebhook() error {
-	list, err := initData()
-	if err != nil {
-		return err
-	}
-	err, _ = database.DeleteTheWebhook("Webhooks", list[0].WebhookId)
-	if err != nil {
-		return err
-	}
-	_, err = getSomeWebhook(list[0].WebhookId)
-	if err != nil {
-		return err
-	} else {
-		return nil
-	}
-}
-
-func getSomeWebhook(id string) (internal.Webhook, error) {
-	webhook, err := database.GetWebhook("Webhooks", id)
-	if err != nil {
-		return internal.Webhook{}, err
-	} else {
-		return webhook, nil
-	}
-}
-func TestDeleteWebhook(t *testing.T) {
-	/*
-			err := deleteWebhook()
-			if err != nil {
-				t.Errorf("Error when deleting webhook in method")
-				t.Fatal()
-			}
-		}
-	*/
+func TestMain(m *testing.M) {
 	err := godotenv.Load()
+	exitcode := m.Run()
 	if err != nil {
 		os.Exit(1)
 	}
 	database.FirebaseConnect()
+	os.Exit(exitcode)
+}
+
+/*
+func initData() ([]internal.Webhook, error) {
+
+		var listOfWebhook []internal.Webhook
+		//Here I am creating a webhook to perform test on.
+		hook := internal.Webhook{
+			Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
+			Country: "NO",
+			Event:   "REGISTER",
+		}
+		listOfWebhook = append(listOfWebhook, hook)
+		hook1 := internal.Webhook{
+			Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
+			Country: "ES",
+			Event:   "INVOKE",
+		}
+		listOfWebhook = append(listOfWebhook, hook1)
+
+		hook2 := internal.Webhook{
+			Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
+			Country: "UK",
+			Event:   "DELETE",
+		}
+		listOfWebhook = append(listOfWebhook, hook2)
+
+		for _, webhook := range listOfWebhook {
+			err := database.AddWebhookToCollection(webhook, "webhooks")
+			if err != nil {
+				return []internal.Webhook{}, err
+			}
+		}
+		return listOfWebhook, nil
+	}
+
+	func deleteWebhook() error {
+		list, err := initData()
+		if err != nil {
+			return err
+		}
+		err, _ = database.DeleteTheWebhook("Webhooks", list[0].WebhookId)
+		if err != nil {
+			return err
+		}
+		_, err = getSomeWebhook(list[0].WebhookId)
+		if err != nil {
+			return err
+		} else {
+			return nil
+		}
+	}
+
+	func getSomeWebhook(id string) (internal.Webhook, error) {
+		webhook, err := database.GetWebhook("Webhooks", id)
+		if err != nil {
+			return internal.Webhook{}, err
+		} else {
+			return webhook, nil
+		}
+	}
+*/
+func TestDeleteWebhook(t *testing.T) {
+
+	err := godotenv.Load()
+
+	if err != nil {
+		os.Exit(1)
+	}
+	database.FirebaseConnect()
+
 	//Here I am creating a webhook to perform test on.
 	hook := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "NO",
+		Country: "HEIEI",
 		Event:   "REGISTER",
 	}
 
@@ -114,13 +124,25 @@ func TestDeleteWebhook(t *testing.T) {
 	//Initializes client.
 	client := http.Client{}
 
+	rec := httptest.NewRecorder()
+
 	response, err := client.Post(url, "Content type: application/json", bytes.NewBuffer(body))
 	//response, err := client.Post("https://localhost:8080/dashboards/v1/notifications/", "Content type: application/json", bytes.NewBuffer(body))
 	if err != nil {
 		t.Errorf("errer" + err.Error())
 	}
 
-	println(response.Body)
+	err = json.NewDecoder(response.Body).Decode(&hook)
+	if err != nil {
+		t.Errorf("Error in getting response from posting new webhook " + err.Error())
+		t.Fatal()
+	}
+
+	handlers.WebhookRegistration(rec, response.Request, TestCollection)
+
+	//response := json.NewDecoder().Decode(&hook)
+
+	//handlers.DeleteWebhook(rec, response.Request, TestCollection, )
 
 	// check test case results
 	asrt := assert.New(t)
