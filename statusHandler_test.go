@@ -75,15 +75,14 @@ func TestStatusHandler(t *testing.T) {
 			defer res.Body.Close()
 
 			// Check test case results
-			assert.Equal(t, tc.expectedStatusCode, res.StatusCode)
-			assert.Equal(t, tc.expectedContentType, res.Header.Get("Content-Type"))
+			assert.Equal(t, tc.expectedStatusCode, res.StatusCode, "Status code should match")
+			contentType := res.Header.Get("Content-Type")
+			assert.Equal(t, tc.expectedContentType, contentType, "Content type should match")
 
-			if tc.expectedStatusCode == http.StatusOK {
-				// Decode JSON response
+			if res.StatusCode == http.StatusOK {
 				var response internal.Status
-				err = json.NewDecoder(res.Body).Decode(&response)
-				if err != nil {
-					t.Fatal("Error when decoding JSON response: " + err.Error())
+				if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
+					t.Fatal("Error decoding JSON response: " + err.Error())
 				}
 
 				// Check if the response has correct fields
