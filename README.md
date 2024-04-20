@@ -11,7 +11,7 @@ Sofia Serine Mikkelsen
 ***
 
 # General Setup
-Example terminal commands are given below each step
+Following, examples for terminal commands are given below. Make sure to follow each step!
 
 ## Environment setup 
 First copy the .env.example file to .env
@@ -27,7 +27,7 @@ mkdir .secrets
 
 Then copy the .env file to the .secrets folder. 
 The .secrets/.env file is used in the docker compose runtime environment.
-This will therefore let you for example run different firebase credentials in the container and locally.
+This will therefore let you, for example, run different firebase credentials in the container and locally.
 ```bash
  cp .env .secrets/.env
 ```
@@ -41,7 +41,7 @@ The service account key should be stored in the `.secrets` folder,
 and the path to it needs to be specified in the `.env` file. 
 This also needs to be specified in the `.secrets/.env` file as well if you want to run it in **Docker**.  
 ## Docker setup
-###First you need to start the docker engine tart the docker engine
+### First you need to start the docker engine. Start the docker engine:
 #### On linux 
 ```bash
  sudo systemctl start docker
