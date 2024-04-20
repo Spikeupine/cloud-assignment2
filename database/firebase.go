@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	firebase "firebase.google.com/go"
+	"fmt"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"log"
@@ -146,6 +147,26 @@ func CountWebhooks(collectionName string) (int, error) {
 		}
 		if err != nil {
 			return 0, err
+		}
+		count++
+	}
+	return count, nil
+}
+
+// GetNumberOfDocuments returns the number of documents in a collection with a name
+func GetNumberOfDocuments(collectionName string) (int, error) {
+	if client == nil {
+		return 0, fmt.Errorf("firebase is not initialized")
+	}
+	iter := client.Collection(collectionName).Documents(ctx)
+	count := 0
+	for {
+		_, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return 0, fmt.Errorf("Iteration error in collection: " + err.Error())
 		}
 		count++
 	}

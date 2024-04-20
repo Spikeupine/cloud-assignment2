@@ -7,22 +7,6 @@ import (
 	"time"
 )
 
-// Struct for holding information about country from restcountries API.
-type RestCountriesStruct struct {
-	Name        string                  `json:"common"`
-	Iso         string                  `json:"cca2"`
-	Population  int                     `json:"population"`
-	Capital     []string                `json:"capital"`
-	Currencies  map[string]CurrencyInfo `json:"currencies"` // Change the data type to a map
-	Coordinates []float64               `json:"latlng"`
-}
-
-// CurrencyInfo Defines a separate struct for currency information
-type CurrencyInfo struct {
-	Name   string `json:"name"`
-	Symbol string `json:"symbol"`
-}
-
 type RegistrationsResponse struct {
 	Id         string
 	LastChange time.Time
@@ -44,10 +28,6 @@ type RegisterRequest struct {
 	IsoCode    string    `json:"isoCode"`
 	LastChange time.Time `json:"lastChange"`
 	Features   Features
-}
-
-type RegisterMap struct {
-	Registers map[string]RegisterRequest `json:"registers"`
 }
 
 type Basics struct {
@@ -78,21 +58,25 @@ type Status struct {
 	Uptime         int64  `json:"uptime"`
 }
 
-// Request for an individual dashboard identified by its ID (same as the corresponding configuration ID)
 type PopulatedDashboard struct {
-	Country  string `json:"country"`
-	IsoCode  string `json:"isoCode"`
-	Features struct {
-		Temperature   float64 `json:"temperature"`
-		Precipitation float64 `json:"precipitation"`
-		Capital       string  `json:"capital"`
-		Coordinates   struct {
-			Latitude  float32 `json:"latitude"`
-			Longitude float32 `json:"longitude"`
-		} `json:"coordinates"`
-		Population       int                `json:"population"`
-		Area             float64            `json:"area"`
-		TargetCurrencies map[string]float64 `json:"targetCurrencies"`
-	} `json:"features"`
-	LastRetrieval string `json:"lastRetrieval"`
+	ID            string            `json:"id"`
+	Country       string            `json:"country"`
+	IsoCode       string            `json:"isoCode"`
+	Features      DashboardFeatures `json:"features"`
+	LastRetrieval time.Time         `json:"lastRetrieval"`
+}
+
+type DashboardFeatures struct {
+	Temperature      float64               `json:"temperature,omitempty"`
+	Precipitation    float64               `json:"precipitation,omitempty"`
+	Capital          string                `json:"capital,omitempty"`
+	Coordinates      *DashboardCoordinates `json:"coordinates,omitempty"`
+	Population       int                   `json:"population,omitempty"`
+	Area             float64               `json:"area,omitempty"`
+	TargetCurrencies map[string]float64    `json:"targetCurrencies,omitempty"`
+}
+
+type DashboardCoordinates struct {
+	Latitude  float64 `json:"latitude,omitempty"`
+	Longitude float64 `json:"longitude,omitempty"`
 }
