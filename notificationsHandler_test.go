@@ -14,27 +14,31 @@ import (
 	"testing"
 )
 
-var responseRegistration *http.Response
 var WebhookRegistration internal.Webhook
-var server httptest.Server
 
-var rec = httptest.NewRecorder()
-var client http.Client
-
+//SeveralIds is responsible for holding the ids of webhooks created within this testfile. Gives control to delete them
+// once the tests are over, and is also checked with assert empty to ensure this.
 var SeveralIds []string
 
+//registerTestingID takes in the id of the webhook that's registered in the system, and appends it to the list of
+// webhooks registered from the test file.
 func registerTestingId(webhookId string) {
 	SeveralIds = append(SeveralIds, webhookId)
 }
 
+//Returns the list with webhook ids
 func getIds() []string {
 	return SeveralIds
 }
 
+// allIdsDeleted wipes the list, because it initializes a new empty one.
 func allIdsDeleted() {
 	SeveralIds = []string{}
 }
 
+// TestMain is actually how we wished to set up the test environment. HOwever, it did not work, and we therefore set
+// it up in each test method. We keep this here, because we wish to show our preferred solution, and the code also
+// does not take damage of it being here.
 func TestMain(m *testing.M) {
 	err := godotenv.Load()
 	exitcode := m.Run()
@@ -45,6 +49,10 @@ func TestMain(m *testing.M) {
 	os.Exit(exitcode)
 }
 
+//TestWebhookRegistration runs tests on the registration of webhooks. It creates requests, and uses the requests in the
+// methods to perform the different scenarios. Adds the webhooks it has registered to the list of webhooks made within
+// test file, for later deletion. It is its own method for code readability, and easier reading of where the tests
+// necessarily fail.
 func TestWebhookRegistration(t *testing.T) {
 	err := godotenv.Load()
 
@@ -92,15 +100,7 @@ func TestWebhookRegistration(t *testing.T) {
 	println(newurl)
 	registerTestingId(WebhookRegistration.WebhookId)
 
-	// marshals the webhook registration so it is as json.
-	//body, err = json.Marshal(webhookRegistration.WebhookId)
-
 	responsehaha := httptest.NewRequest(http.MethodGet, newurl, bytes.NewBuffer(body))
-
-	//responseGetwebhook, err := client.Get(newurl)
-	//if err != nil {
-	//	t.Errorf("Error sending get request to notification service " + err.Error())
-	//}
 
 	var getHook internal.Webhook
 
@@ -109,9 +109,13 @@ func TestWebhookRegistration(t *testing.T) {
 		t.Errorf("Error in getting response from posting new webhook " + err.Error())
 		t.Fatal()
 	}
-	println(SeveralIds[0])
 }
 
+//TestDeleteWebhook deletes the webhooks that has been added to the collection of webhook id's within this test file.
+// It ranges over this list, and deletes them by creating http DELETE requests, and passing this as parameter to
+// DeleteWebhook method of handler. The recorded http status code is then later compared, and a get request to the
+// individual webhooks is tried sent (and test is failed if it successfully manages to retrieve webhook supposed
+// to be deleted). Also empties list after all is deleted from list, and asserts it empty.
 func TestDeleteWebhook(t *testing.T) {
 
 	err := godotenv.Load()
@@ -180,6 +184,11 @@ func TestDeleteWebhook(t *testing.T) {
 	asrt.Empty(SeveralIds, "Expect no more IDs in the list of registered webhooks within test file")
 }
 
+// TestGetWebhooks tests method of retrieving all the webhooks in the collection. Since this request goes to the actual
+// webhooks in firebase, we first register the number for how many there are now from GET request with unspecified id,
+//add a few, and then compare the number. For each webhook added, they are added to the list of webhooks created within
+// test file.
+//
 func TestGetWebhooks(t *testing.T) {
 
 }
