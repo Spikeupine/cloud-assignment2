@@ -142,6 +142,12 @@ func TestDeleteWebhook(t *testing.T) {
 
 	handlers.DeleteWebhook(rec, response.Request, "webhooks", hook.WebhookId)
 
+	response, err := client.Get(url, "Content type: application/json", bytes.NewBuffer(body))
+	//response, err := client.Post("https://localhost:8080/dashboards/v1/notifications/", "Content type: application/json", bytes.NewBuffer(body))
+	if err != nil {
+		t.Errorf("errer" + err.Error())
+	}
+
 	// check test case results
 	webhook, errorWebhook := database.GetWebhook("webhooks", hook.WebhookId)
 
