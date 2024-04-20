@@ -154,10 +154,11 @@ func TestDeleteWebhook(t *testing.T) {
 	listOfIdsOfWebhooksToDelete := getIds()
 
 	for _, id := range listOfIdsOfWebhooksToDelete {
+		println(id)
 		url := server.URL + "/" + id
-		respondent, err := client.Post(url, http.MethodDelete, nil)
+		respondent := httptest.NewRequest(http.MethodDelete, url, nil)
 
-		handlers.DeleteWebhook(rec, respondent.Request, "webhooks", WebhookRegistration.WebhookId)
+		handlers.DeleteWebhook(rec, respondent, "webhooks", id)
 
 		responseGetwebhook, err := client.Get(url)
 
