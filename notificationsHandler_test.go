@@ -14,8 +14,6 @@ import (
 	"testing"
 )
 
-var WebhookRegistration internal.Webhook
-
 // SeveralIds is responsible for holding the ids of webhooks created within this testfile. Gives control to delete them
 // once the tests are over, and is also checked with assert empty to ensure this.
 var SeveralIds []string
@@ -54,9 +52,10 @@ func TestMain(m *testing.M) {
 // test file, for later deletion. It is its own method for code readability, and easier reading of where the tests
 // necessarily fail.
 func TestWebhookRegistration(t *testing.T) {
-	err := godotenv.Load()
 
-	if err != nil {
+	errorLoad := godotenv.Load()
+
+	if errorLoad != nil {
 		os.Exit(1)
 	}
 	database.FirebaseConnect()
@@ -205,5 +204,113 @@ func TestDeleteWebhook(t *testing.T) {
 // add a few, and then compare the number. For each webhook added, they are added to the list of webhooks created within
 // test file.
 func TestGetWebhooks(t *testing.T) {
+
+	err := godotenv.Load()
+	if err != nil {
+		os.Exit(1)
+	}
+	database.FirebaseConnect()
+
+	//Sets up the server to the endpoint.
+	server := httptest.NewServer(http.HandlerFunc(handlers.NotificationsHandler))
+
+	requestToGet := httptest.NewRequest(http.MethodGet, server.URL, nil)
+
+	record := httptest.NewRecorder()
+
+	handlers.GetWebhooks(record, requestToGet, "webhooks")
+
+	asser := assert.New(t)
+
+	asser.Equal(http.StatusOK, record.Code)
+
+	var listOfAllHooksInDatabase []internal.Webhook
+
+	err = json.NewDecoder(record.Body).Decode(&listOfAllHooksInDatabase)
+	if err != nil {
+		t.Errorf("Error in reading content into list of webhooks " + err.Error())
+		t.Fatal()
+	}
+
+	oldNumberOfHooks := len(listOfAllHooksInDatabase)
+
+	numberOfHooks, err := database.CountWebhooks("webhooks")
+
+	//Here I am creating a webhook to perform test on.
+	newWebhook := internal.Webhook{
+		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
+		Country: "Test2",
+		Event:   "REGISTER",
+	}
+	//Here I am creating a webhook to perform test on.
+	newerWebhook := internal.Webhook{
+		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
+		Country: "Test2",
+		Event:   "REGISTER",
+	}
+
+	//Here I am creating a webhook to perform test on.
+	newestWebhook := internal.Webhook{
+		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
+		Country: "Test2",
+		Event:   "REGISTER",
+	}
+
+	var webhooksToAdd []internal.Webhook
+	webhooksToAdd = append(webhooksToAdd, newestWebhook, newWebhook, newerWebhook)
+
+	for _, webhook := range webhooksToAdd {
+		// marshals the webhook registration so it is as json.
+		body, err := json.Marshal(webhook)
+
+		//Sets up the server to the endpoint.
+		server := httptest.NewServer(http.HandlerFunc(handlers.NotificationsHandler))
+		defer server.Close()
+
+		//Specified the url to use in request.
+		url := server.URL
+
+		//Initializes client.
+		client := http.Client{}
+
+		// This recorder will record http errors for example.
+		rec := httptest.NewRecorder()
+
+		//sending the http request post to testserver url notifications handler with body of new webhook to be registered.
+		responseRegistration, err := client.Post(url, "Content type: application/json", bytes.NewBuffer(body))
+		if err != nil {
+			t.Errorf("errer" + err.Error())
+		}
+
+		// Decodes the responsebody into webhook struct.
+		err = json.NewDecoder(responseRegistration.Body).Decode(&webhook)
+		if err != nil {
+			t.Errorf("Error in getting response from posting new webhook " + err.Error())
+			t.Fatal()
+		}
+
+		//Uses the request from registered response to make a new webhook registration. It is put into webhooks in firebase.
+		handlers.WebhookRegistration(rec, responseRegistration.Request, "webhooks")
+
+		newurl := server.URL + "/" + webhook.WebhookId
+		println(newurl)
+
+		//Here the id of the webhook is registered in the list of webhooks created within test environment, to be deleted
+		//after test.
+		registerTestingId(webhook.WebhookId)
+
+	}
+
+	newNumberOfWebhooks, err := database.CountWebhooks("webhooks")
+	if err != nil {
+		t.Errorf("Error counting webhooks")
+	}
+	asrt := assert.New(t)
+
+	asrt.Equal(oldNumberOfHooks, numberOfHooks)
+
+	asrt.Equal(oldNumberOfHooks+3, newNumberOfWebhooks)
+
+	asrt.Equal(http.StatusOK, record.Code)
 
 }
