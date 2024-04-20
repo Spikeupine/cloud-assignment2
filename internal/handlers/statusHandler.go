@@ -14,6 +14,11 @@ var serviceStartTime = time.Now()
 
 // StatusHandler gives us the status for each API
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	var response internal.Status
 
 	// Retrieve the status of the APIs
