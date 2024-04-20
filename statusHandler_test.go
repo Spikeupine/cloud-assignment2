@@ -1,8 +1,11 @@
 package assignment_two
 
 import (
+	"assignment-2/internal"
 	"assignment-2/internal/handlers"
+	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -36,4 +39,60 @@ func TestStatusHandler(t *testing.T) {
 	statusSetup()
 	defer statusTeardown()
 
+	testCases := []struct {
+		testName            string
+		httpMethod          string
+		expectedContentType string
+		expectedStatusCode  int
+	}{
+		{
+			testName:            "GET request",
+			httpMethod:          http.MethodGet,
+			expectedContentType: internal.ContentTypeJson,
+			expectedStatusCode:  http.StatusOK,
+		},
+		{
+			testName:            "Unsupported request method",
+			httpMethod:          http.MethodPost,
+			expectedContentType: "text/plain; charset=utf-8",
+			expectedStatusCode:  http.StatusMethodNotAllowed,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			// Create request
+			req, err := http.NewRequest(tc.httpMethod, testServer.URL, nil)
+			if err != nil {
+				t.Fatal("Error when creating request: " + err.Error())
+			}
+
+			// Issue request
+			res, err := testClient.Do(req)
+			if err != nil {
+				t.Fatal("Error when issuing request: " + err.Error())
+			}
+			defer res.Body.Close()
+
+			// Check test case results
+			assert.Equal(t, tc.expectedStatusCode, res.StatusCode)
+			assert.Equal(t, tc.expectedContentType, res.Header.Get("Content-Type"))
+
+			if tc.expectedStatusCode == http.StatusOK {
+				// Decode JSON response
+				var response internal.Status
+				err = json.NewDecoder(res.Body).Decode(&response)
+				if err != nil {
+					t.Fatal("Error when decoding JSON response: " + err.Error())
+				}
+
+				// Check if the response has correct fields
+				assert.NotEmpty(t, response.CountriesAPI, "Countries API status should be set")
+				assert.NotEmpty(t, response.MeteoAPI, "Meteo API status should be set")
+				assert.NotEmpty(t, response.CurrencyAPI, "Currency API status should be set")
+				assert.Equal(t, "v1", response.Version)
+				assert.Greater(t, response.Uptime, int64(0), "Uptime should be greater than 0")
+			}
+		})
+	}
 }
