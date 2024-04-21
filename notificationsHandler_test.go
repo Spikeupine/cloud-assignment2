@@ -52,13 +52,8 @@ func TestMain(m *testing.M) {
 // test file, for later deletion. It is its own method for code readability, and easier reading of where the tests
 // necessarily fail.
 func TestWebhookRegistration(t *testing.T) {
-
-	errorLoad := godotenv.Load()
-
-	if errorLoad != nil {
-		os.Exit(1)
-	}
-	database.FirebaseConnect()
+	TestSetup()
+	defer TestTearDown()
 
 	//Here I am creating a webhook to perform test on.
 	WebhookRegistration := internal.Webhook{
