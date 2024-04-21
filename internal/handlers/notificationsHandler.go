@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"assignment-2/database"
-	"assignment-2/external/resources"
+	"assignment-2/external/router"
 	"assignment-2/internal"
 	"encoding/json"
 	"github.com/google/uuid"
@@ -55,7 +55,7 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 		return
 	}
 
-	country, errorCountry := resources.GetRestCountries("", webhook.Country)
+	country, errorCountry := router.GetCountriesObject("", webhook.Country)
 	if errorCountry != nil {
 		http.Error(w, "Error in country code of webhook to be registered :"+errorCountry.Error(), http.StatusBadRequest)
 		return

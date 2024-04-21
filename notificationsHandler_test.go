@@ -2,6 +2,7 @@ package assignment_two
 
 import (
 	"assignment-2/database"
+	"assignment-2/external/router"
 	"assignment-2/internal"
 	"assignment-2/internal/handlers"
 	"bytes"
@@ -43,6 +44,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		os.Exit(1)
 	}
+
 	database.FirebaseConnect()
 	os.Exit(exitcode)
 }
@@ -72,6 +74,10 @@ func TestWebhookRegistration(t *testing.T) {
 
 	//Sets up the server to the endpoint.
 	server := httptest.NewServer(http.HandlerFunc(handlers.NotificationsHandler))
+	err = os.Setenv(router.TESTING, "true")
+	if err != nil {
+		t.Fatal("Cannot test when stubs cannot be used.")
+	}
 	defer server.Close()
 
 	//Specified the url to use in request.
@@ -149,6 +155,10 @@ func TestGetWebhooks(t *testing.T) {
 		os.Exit(1)
 	}
 	database.FirebaseConnect()
+	err = os.Setenv(router.TESTING, "true")
+	if err != nil {
+		t.Fatal("Cannot test when stubs cannot be used.")
+	}
 
 	server := httptest.NewServer(http.HandlerFunc(handlers.NotificationsHandler))
 
@@ -184,20 +194,20 @@ func TestGetWebhooks(t *testing.T) {
 	//Here I am creating a webhook to perform test on.
 	newWebhook := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "ES",
+		Country: "NO",
 		Event:   "REGISTER",
 	}
 	//Here I am creating a webhook to perform test on.
 	newerWebhook := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "PS",
+		Country: "NO",
 		Event:   "REGISTER",
 	}
 
 	//Here I am creating a webhook to perform test on.
 	newestWebhook := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "DK",
+		Country: "NO",
 		Event:   "REGISTER",
 	}
 
@@ -270,6 +280,11 @@ func TestGetWebhook(t *testing.T) {
 	err := godotenv.Load()
 	if err != nil {
 		os.Exit(1)
+	}
+
+	err = os.Setenv(router.TESTING, "true")
+	if err != nil {
+		t.Fatal("Cannot test when stubs cannot be used.")
 	}
 	database.FirebaseConnect()
 
@@ -369,6 +384,11 @@ func TestDeleteWebhook(t *testing.T) {
 		os.Exit(1)
 	}
 	database.FirebaseConnect()
+
+	err = os.Setenv(router.TESTING, "true")
+	if err != nil {
+		t.Fatal("Cannot test when stubs cannot be used.")
+	}
 
 	//Initializes client.
 	client := http.Client{}
