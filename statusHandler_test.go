@@ -1,10 +1,12 @@
 package assignment_two
 
 import (
+	"assignment-2/database"
 	"assignment-2/internal"
 	"assignment-2/internal/handlers"
 	"encoding/json"
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -17,6 +19,8 @@ var (
 )
 
 func statusSetup() {
+	godotenv.Load()
+	database.FirebaseConnect()
 	// Setting up the test server
 	testServer = httptest.NewServer(http.HandlerFunc(handlers.StatusHandler))
 	fmt.Println("Running test server on " + testServer.URL)
@@ -26,6 +30,7 @@ func statusSetup() {
 }
 
 func statusTeardown() {
+	database.FireBaseCloseConnection()
 	// Closing the test server
 	testServer.Close()
 	fmt.Println("Closing test server on " + testServer.URL)

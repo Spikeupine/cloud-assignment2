@@ -148,9 +148,8 @@ func GetAllWebhooks(w http.ResponseWriter, collectionName string) ([]internal.We
 
 // CountWebhooks returns the number of documents in the specified collection
 func CountWebhooks(collectionName string) (int, error) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	iter := client.Collection(collectionName).Documents(ctx)
+	ctx := context.Background()
+	iter := GetCollectionRef(collectionName).Documents(ctx)
 	defer iter.Stop()
 
 	count := 0
