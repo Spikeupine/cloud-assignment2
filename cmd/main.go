@@ -32,6 +32,7 @@ func main() {
 	http.HandleFunc(internal.StatusPath, handlers.StatusHandler)
 	http.HandleFunc(internal.RegistrationsPath, handlers.RegistrationsHandler)
 	http.HandleFunc(internal.RegistrationsPath+"{id}", handlers.RegistrationsHandler)
+	http.HandleFunc(internal.RegistrationsPath2, handlers.RegistrationsHandler)
 	http.HandleFunc(internal.DashboardsPath, handlers.DashboardsHandler)
 	http.HandleFunc(internal.DashboardsPath+"{id}", handlers.DashboardsHandler)
 	http.HandleFunc(internal.NotificationsPath, handlers.NotificationsHandler)
