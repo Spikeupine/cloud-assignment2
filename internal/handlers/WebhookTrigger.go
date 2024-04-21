@@ -66,7 +66,7 @@ func EventWebhook(w http.ResponseWriter, iso string, method string) {
 		http.Error(w, "Error when putting webhooks in list in WebhookTrigger :"+err.Error(), http.StatusInternalServerError)
 	} else {
 		for _, webhook := range webhooks {
-			if webhook.Country == iso && webhook.Event == method || iso == "" && webhook.Event == "INVOKE" {
+			if webhook.Country == iso && webhook.Event == method || webhook.Country == "" {
 				switch webhook.Event {
 				case "REGISTER":
 					IncrementCallCount(w, webhook)

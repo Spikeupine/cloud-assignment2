@@ -56,7 +56,7 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 	}
 
 	country, errorCountry := router.GetCountriesObject("", webhook.Country)
-	if errorCountry != nil {
+	if errorCountry != nil && webhook.Country != "" {
 		http.Error(w, "Error in country code of webhook to be registered :"+errorCountry.Error(), http.StatusBadRequest)
 		return
 	} else if country.Cca2 == webhook.Country || webhook.Country == "" {
