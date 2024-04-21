@@ -140,6 +140,7 @@ func GetAllWebhooks(w http.ResponseWriter, collectionName string) ([]internal.We
 		if err != nil {
 			http.Error(w, "Error when sending data to document in getAllWebhooks :"+err.Error(), http.StatusInternalServerError)
 		}
+		w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
 
 		documents = append(documents, data)
 	}

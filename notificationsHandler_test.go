@@ -387,27 +387,30 @@ func TestDeleteWebhook(t *testing.T) {
 			t.Errorf("Error in deleting webhook, as we can retrieve it even after deletion" + err.Error())
 			t.Fatal()
 		}
-
 		asrt := assert.New(t)
 
 		//Checks if that webhook is actually empty, as it should be.
 		asrt.Empty(testHookDelete)
 
+		recordthis := httptest.NewRecorder()
+
 		//Tries out the method for GetWebhook with if of deleted webhook. Records response in rec.
-		handlers.GetWebhook(rec, database.WebhookCollection, id)
+		handlers.GetWebhook(recordthis, database.WebhookCollection, id)
 
 		asrt.Equal(testHookDelete.WebhookId, "")
-		asrt.Equal(http.StatusBadRequest, rec.Code)
+
+		//Bad request, because the webhook with that id is deleted.
+		asrt.Equal(http.StatusBadRequest, recordthis.Code)
 
 	}
-
+	record := httptest.NewRecorder()
 	//Sends the request to method, with empty webhook id.
-	handlers.DeleteWebhook(rec, database.WebhookCollection, "")
+	handlers.DeleteWebhook(record, database.WebhookCollection, "")
 
 	asrt := assert.New(t)
 
 	//Asserts that it should return StatusBadRequest
-	asrt.Equal(http.StatusBadRequest, rec.Code)
+	asrt.Equal(http.StatusBadRequest, record.Code)
 
 	//Deletes all the id's from the list.
 	allIdsDeleted()

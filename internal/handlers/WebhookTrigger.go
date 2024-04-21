@@ -27,7 +27,6 @@ func IncrementCallCount(w http.ResponseWriter, webhook internal.Webhook) {
 	invokeWebhook(webhook.Url, internal.InvokeWebhook{
 		WebhookId: webhook.WebhookId,
 		Country:   webhook.Country,
-		Calls:     webhook.Calls,
 		Event:     webhook.Event,
 		Time:      time.Now()})
 
