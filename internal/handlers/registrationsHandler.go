@@ -26,6 +26,7 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "error retrieving data"+err.Error(), http.StatusInternalServerError)
 				return
 			}
+			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(registrations)
 		} else {
 			document, err := GetSingleRegistration(r.Context(), database.DashboardCollection, pathValue)
@@ -33,6 +34,7 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			w.Header().Set("Content-Type", "application/json")
 			err = json.NewEncoder(w).Encode(document)
 			if err != nil {
 				http.Error(w, "error encoding document"+err.Error(), http.StatusInternalServerError)
@@ -41,7 +43,6 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case http.MethodPost:
 		var dashboard internal.RegisterRequest
-
 		err := json.NewDecoder(r.Body).Decode(&dashboard)
 		if err != nil {
 			http.Error(w, "Error parsing JSON: "+err.Error(), http.StatusBadRequest)
@@ -60,7 +61,7 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to create dashboard: "+err.Error(), http.StatusInternalServerError)
 		}
 		EventWebhook(w, dashboard.IsoCode, "REGISTER")
-
+		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(response)
 		if err != nil {
 			http.Error(w, "Couldn't parse response from database", http.StatusInternalServerError)
