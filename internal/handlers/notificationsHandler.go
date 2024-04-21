@@ -104,6 +104,8 @@ func DeleteWebhook(w http.ResponseWriter, collectionName string, webhookId strin
 	if webhookId != internal.Empty {
 		// deletes the webhook via database method.
 		err, sc := database.DeleteTheWebhook(collectionName, webhookId)
+		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+		http.Error(w, "Successfully deleted webhook with id :"+webhookId, http.StatusOK)
 		if err != nil {
 			http.Error(w, "Error when deleting webhook with id '"+webhookId+"' :"+err.Error(), sc)
 		}
