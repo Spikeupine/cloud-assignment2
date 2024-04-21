@@ -54,8 +54,12 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 		http.Error(w, "Error during decoding body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	_, err := resources.GetRestCountries("", webhook.Country)
-	if err != nil {
+
+	country, errorCountry := resources.GetRestCountries("", webhook.Country)
+	if errorCountry != nil {
+		http.Error(w, "Error in country code of webhook to be registered :"+errorCountry.Error(), http.StatusBadRequest)
+		return
+	} else if country.Cca2 == webhook.Country {
 		// adds the webhook to the database via methods in firebase-
 		err := database.AddWebhookToCollection(webhook, collectionName)
 		if err != nil {
@@ -73,8 +77,10 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 			http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+	} else {
+		http.Error(w, "Error in country code of webhook. Webhook not registered.", http.StatusBadRequest)
+		return
 	}
-
 }
 
 // DeleteWebhook handles DELETE method, and deletes the webhook with specified if from database.
