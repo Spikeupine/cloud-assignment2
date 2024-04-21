@@ -61,7 +61,7 @@ func invokeWebhook(url string, data internal.Webhook) {
 }
 
 func EventWebhook(w http.ResponseWriter, iso string, method string) {
-	webhooks, err := database.GetAllWebhooks(w, "webhooks")
+	webhooks, err := database.GetAllWebhooks(w, database.WebhookCollection)
 	if err != nil {
 		http.Error(w, "Error when putting webhooks in list in WebhookTrigger :"+err.Error(), http.StatusInternalServerError)
 	} else {

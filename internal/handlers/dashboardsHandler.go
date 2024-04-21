@@ -5,6 +5,7 @@ import (
 	"assignment-2/external"
 	"assignment-2/external/router"
 	"assignment-2/internal"
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -20,13 +21,9 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		dashboard, err := getPopulatedDashboard(id)
+		dashboard, err := getPopulatedDashboard(id, r.Context())
 		if err != nil {
 			http.Error(w, "error retrieving populated dashboard: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if err != nil {
-			http.Error(w, "error encoding response: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -40,10 +37,10 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getRegisterRequestFromDatabase(id string) (internal.RegisterRequest, error) {
+func getRegisterRequestFromDatabase(id string, ctx context.Context) (internal.RegisterRequest, error) {
 	var dashboard internal.RegisterRequest
-	docRef := database.GetClient().Collection("dashboards").Doc(id)
-	docSnapshot, err := docRef.Get(database.GetContext())
+	docRef := database.GetDocumentRef(database.DashboardCollection, id)
+	docSnapshot, err := docRef.Get(ctx)
 	if err != nil {
 		return internal.RegisterRequest{}, err
 	}
@@ -55,10 +52,10 @@ func getRegisterRequestFromDatabase(id string) (internal.RegisterRequest, error)
 }
 
 // Function to fetch data for each enabled feature
-func getPopulatedDashboard(id string) (populated internal.PopulatedDashboard, err error) {
+func getPopulatedDashboard(id string, ctx context.Context) (populated internal.PopulatedDashboard, err error) {
 	var register internal.RegisterRequest
 	// Retrieve RegisterRequest from database
-	register, err = getRegisterRequestFromDatabase(id)
+	register, err = getRegisterRequestFromDatabase(id, ctx)
 	if err != nil {
 		return internal.PopulatedDashboard{}, err
 	}

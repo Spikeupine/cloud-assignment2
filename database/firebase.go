@@ -22,13 +22,21 @@ func GetClient() *firestore.Client {
 	return client
 }
 
-func GetContext() context.Context {
-	return ctx
+func GetCollectionRef(collectionName string) *firestore.CollectionRef {
+	document := GetClient().Collection(collectionName)
+	return document
+}
+
+func GetDocumentRef(collectionName string, documentId string) *firestore.DocumentRef {
+	document := GetCollectionRef(collectionName)
+	return document.Doc(documentId)
 }
 
 // FirebaseConnect establishes the connection to firebase
 func FirebaseConnect() {
-	ctx = context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	key, exists := os.LookupEnv("FIREBASE_KEY")
 	if !exists {
 		log.Fatal("FIREBASE_KEY environment variable not set")
@@ -58,7 +66,7 @@ func FireBaseCloseConnection() {
 // Appends the webhook to the collection of other webhooks in firebase.
 func AddWebhookToCollection(webhook internal.Webhook, collectionName string) error {
 
-	_, err := client.Collection(collectionName).Doc(webhook.WebhookId).Create(ctx, webhook)
+	_, err := GetDocumentRef(collectionName, webhook.WebhookId).Create(ctx, webhook)
 	if err != nil {
 		return err
 	}

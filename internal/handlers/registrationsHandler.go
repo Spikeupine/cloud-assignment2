@@ -3,11 +3,11 @@ package handlers
 import (
 	"assignment-2/database"
 	"assignment-2/internal"
-	"cloud.google.com/go/firestore"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -22,14 +22,14 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 		pathValue := r.PathValue("id")
 		if pathValue == "" {
 			EventWebhook(w, "", "INVOKE")
-			registrations, err := getAllRegistrations()
+			registrations, err := GetAllRegistrations(r.Context())
 			if err != nil {
 				http.Error(w, "error retrieving data"+err.Error(), http.StatusInternalServerError)
 				return
 			}
 			json.NewEncoder(w).Encode(registrations)
 		} else {
-			document, err := fetchSingleByField(r.Context(), database.GetClient(), "dashboards", pathValue)
+			document, err := GetSingleRegistration(r.Context(), database.DashboardCollection, pathValue)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
@@ -42,10 +42,30 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 			EventWebhook(w, document.IsoCode, "INVOKE")
 		}
 	case http.MethodPost:
-		err := registerDashboard(w, r)
+		var dashboard internal.RegisterRequest
+
+		err := json.NewDecoder(r.Body).Decode(&dashboard)
 		if err != nil {
-			http.Error(w, "Error posting to Registrations Handler: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Error parsing JSON: "+err.Error(), http.StatusBadRequest)
 			return
+		}
+
+		if dashboard.IsoCode == "" && dashboard.Country == "" {
+			http.Error(w, "ISO country code or country must be present: ", http.StatusBadRequest)
+			return
+		}
+		SetRegistrationValues(&dashboard)
+
+		// Parse the user's feature selections and create/update the dashboard in Firestore
+		response, err := UploadDashboard(dashboard, r.Context())
+		if err != nil {
+			http.Error(w, "Failed to create dashboard: "+err.Error(), http.StatusInternalServerError)
+		}
+		EventWebhook(w, dashboard.IsoCode, "REGISTER")
+
+		err = json.NewEncoder(w).Encode(response)
+		if err != nil {
+			http.Error(w, "Couldn't parse response from database", http.StatusInternalServerError)
 		}
 	case http.MethodPut:
 		// Extract ID from URL path
@@ -55,11 +75,8 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Initialize Firestore client
-		firestoreClient := database.GetClient()
-
 		// Fetch the existing registration
-		_, err := fetchSingleByField(r.Context(), firestoreClient, "dashboards", id)
+		_, err := GetSingleRegistration(r.Context(), database.DashboardCollection, id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -81,13 +98,9 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		// Extract ID from URL path
 		id := r.PathValue("id")
-
-		// Initialize Firestore client
-		firestoreClient := database.GetClient()
-
 		// Delete the registration document from Firestore based on the provided ID.
-		firestore := firestoreClient.Collection("dashboards").Doc(id)
-		document, err := firestore.Get(r.Context())
+		documentRef := database.GetDocumentRef(database.DashboardCollection, id)
+		document, err := documentRef.Get(r.Context())
 		if err != nil {
 			http.Error(w, "Error when retrieving specified dashboard by id :"+err.Error(), http.StatusNotFound)
 			return
@@ -103,7 +116,7 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error when parsing country information for webhook check :"+err.Error(), http.StatusServiceUnavailable)
 		}
 		EventWebhook(w, actualIsoCodeForWebhook.IsoCode, actualIsoCodeForWebhook.Method)
-		_, err = firestore.Delete(r.Context())
+		err = DeleteRegistration(r.Context(), database.DashboardCollection, id)
 		if err != nil {
 			http.Error(w, "Error deleting registration: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -118,9 +131,15 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func fetchSingleByField(ctx context.Context, client *firestore.Client, collectionName string, documentID string) (internal.RegisterRequest, error) {
+func SetRegistrationValues(dashboard *internal.RegisterRequest) {
+	id, _ := uuid.NewUUID()
+	dashboard.Id = id.String()
+	dashboard.LastChange = time.Now()
+}
+
+func GetSingleRegistration(ctx context.Context, collectionName string, documentID string) (internal.RegisterRequest, error) {
 	// Create a reference to the document
-	docRef := client.Collection(collectionName).Doc(documentID)
+	docRef := database.GetDocumentRef(collectionName, documentID)
 
 	// Get the document snapshot
 	docSnapshot, err := docRef.Get(ctx)
@@ -140,10 +159,10 @@ func fetchSingleByField(ctx context.Context, client *firestore.Client, collectio
 	return dashboard, nil
 }
 
-func getAllRegistrations() ([]internal.RegisterRequest, error) {
+func GetAllRegistrations(ctx context.Context) ([]internal.RegisterRequest, error) {
 	var registrations []internal.RegisterRequest
-	client := database.GetClient().Collection("dashboards")
-	documents := client.Documents(database.GetContext())
+	collectionRef := database.GetCollectionRef(database.DashboardCollection)
+	documents := collectionRef.Documents(ctx)
 	for {
 		doc, err := documents.Next()
 		if errors.Is(err, iterator.Done) {
@@ -162,4 +181,20 @@ func getAllRegistrations() ([]internal.RegisterRequest, error) {
 		}
 	}
 	return registrations, nil
+}
+func UploadDashboard(dashboard internal.RegisterRequest, ctx context.Context) (internal.RegistrationsResponse, error) {
+	_, err := database.GetDocumentRef(database.DashboardCollection, dashboard.Id).Create(ctx, dashboard)
+	if err != nil {
+		return internal.RegistrationsResponse{}, err
+	}
+	registrationResponse := internal.RegistrationsResponse{
+		Id:         dashboard.Id,
+		LastChange: dashboard.LastChange,
+	}
+	return registrationResponse, nil
+}
+
+func DeleteRegistration(ctx context.Context, collectionName string, id string) error {
+	_, err := database.GetDocumentRef(collectionName, id).Delete(ctx)
+	return err
 }
