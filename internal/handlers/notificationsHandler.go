@@ -59,7 +59,7 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 	if errorCountry != nil {
 		http.Error(w, "Error in country code of webhook to be registered :"+errorCountry.Error(), http.StatusBadRequest)
 		return
-	} else if country.Cca2 == webhook.Country {
+	} else if country.Cca2 == webhook.Country || webhook.Country == "" {
 		// adds the webhook to the database via methods in firebase-
 		err := database.AddWebhookToCollection(webhook, collectionName)
 		if err != nil {
