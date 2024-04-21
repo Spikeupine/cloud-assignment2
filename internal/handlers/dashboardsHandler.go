@@ -21,7 +21,7 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		dashboard, err := getPopulatedDashboard(id)
+		dashboard, err := getPopulatedDashboard(id, r.Context())
 		if err != nil {
 			http.Error(w, "error retrieving populated dashboard: "+err.Error(), http.StatusInternalServerError)
 			return
