@@ -73,9 +73,8 @@ func invokeWebhook(url string, data internal.Webhook) {
 // from, for example when a new configuration is added. It loops over all the webhooks to update the call count of them
 // all. If the webhook has an empty string as iso, then all instances of its method should be registered and incremented
 func EventWebhook(w http.ResponseWriter, iso string, method string) {
-
 	//Gets the list of webhooks, or error.
-	webhooks, err := database.GetAllWebhooks(w, "webhooks")
+	webhooks, err := database.GetAllWebhooks(w, database.WebhookCollection)
 	if err != nil {
 		http.Error(w, "Error when putting webhooks in list in WebhookTrigger :"+err.Error(), http.StatusInternalServerError)
 	} else {

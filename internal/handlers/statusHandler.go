@@ -28,13 +28,13 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	response.CountriesAPI = getAPIStatus(external.CountriesApi + internal.IsoExample)
 	response.MeteoAPI = getAPIStatus(external.MeteoApi)
 	response.CurrencyAPI = getAPIStatus(external.CurrencyApi + "nok")
-	webhooksCount, err := database.CountWebhooks("webhooks")
+	webhooksCount, err := database.CountWebhooks(database.WebhookCollection)
 	if err != nil {
 		http.Error(w, "Failed to get webhook count", http.StatusInternalServerError)
 		return
 	}
 	firestoreStatusCode := http.StatusOK
-	webhooksCount, err = database.GetNumberOfDocuments("webhooks")
+	webhooksCount, err = database.GetNumberOfDocuments(database.WebhookCollection)
 	if err != nil {
 		firestoreStatusCode = http.StatusNotFound
 	}

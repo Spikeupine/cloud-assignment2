@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	collectionNameWebhooks = "webhooks"
+	collectionNameWebhooks = database.WebhookCollection
 )
 
 // NotificationsHandler handles the notifications endpoint. It directs the http requests of different types to their

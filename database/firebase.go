@@ -14,7 +14,6 @@ import (
 )
 
 var (
-	ctx    context.Context
 	client *firestore.Client
 )
 
@@ -22,13 +21,21 @@ func GetClient() *firestore.Client {
 	return client
 }
 
-func GetContext() context.Context {
-	return ctx
+func GetCollectionRef(collectionName string) *firestore.CollectionRef {
+	document := GetClient().Collection(collectionName)
+	return document
+}
+
+func GetDocumentRef(collectionName string, documentId string) *firestore.DocumentRef {
+	document := GetCollectionRef(collectionName)
+	return document.Doc(documentId)
 }
 
 // FirebaseConnect establishes the connection to firebase
 func FirebaseConnect() {
-	ctx = context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	key, exists := os.LookupEnv("FIREBASE_KEY")
 	if !exists {
 		log.Fatal("FIREBASE_KEY environment variable not set")
@@ -57,8 +64,9 @@ func FireBaseCloseConnection() {
 
 // Appends the webhook to the collection of other webhooks in firebase.
 func AddWebhookToCollection(webhook internal.Webhook, collectionName string) error {
-
-	_, err := client.Collection(collectionName).Doc(webhook.WebhookId).Create(ctx, webhook)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	_, err := GetDocumentRef(collectionName, webhook.WebhookId).Create(ctx, webhook)
 	if err != nil {
 		return err
 	}
@@ -67,7 +75,8 @@ func AddWebhookToCollection(webhook internal.Webhook, collectionName string) err
 
 // UpdateTheCallCount of the webhook document by id and collection name. Takes in count to pass on to database.
 func UpdateTheCallCount(collectionName, docId string, callCount int) error {
-
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	_, err := client.Collection(collectionName).Doc(docId).Update(ctx, []firestore.Update{
 		{
 			Path:  "Calls",
@@ -79,6 +88,8 @@ func UpdateTheCallCount(collectionName, docId string, callCount int) error {
 
 // GetWebhook returns the webhook requested by its ID, or an error if any.
 func GetWebhook(collectionName string, webhookID string) (internal.Webhook, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	docReference := client.Doc(collectionName + "/" + webhookID)
 	documentSnapshot, err := docReference.Get(ctx)
 	if err != nil {
@@ -95,7 +106,8 @@ func GetWebhook(collectionName string, webhookID string) (internal.Webhook, erro
 
 // DeleteTheWebhook finds the specified document's id in the collection specified, and deletes it.
 func DeleteTheWebhook(collectionName, documentID string) (error, int) {
-
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	// reference to the webhook document
 	docReference := client.Doc(collectionName + "/" + documentID)
 
@@ -110,7 +122,8 @@ func DeleteTheWebhook(collectionName, documentID string) (error, int) {
 func GetAllWebhooks(w http.ResponseWriter, collectionName string) ([]internal.Webhook, error) {
 	//Creates map to sture the different documents in
 	var documents []internal.Webhook
-
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	//Iterator going through all the documents
 	iter := client.Collection(collectionName).Documents(ctx)
 	for {
@@ -136,7 +149,7 @@ func GetAllWebhooks(w http.ResponseWriter, collectionName string) ([]internal.We
 // CountWebhooks returns the number of documents in the specified collection
 func CountWebhooks(collectionName string) (int, error) {
 	ctx := context.Background()
-	iter := client.Collection(collectionName).Documents(ctx)
+	iter := GetCollectionRef(collectionName).Documents(ctx)
 	defer iter.Stop()
 
 	count := 0
@@ -158,6 +171,8 @@ func GetNumberOfDocuments(collectionName string) (int, error) {
 	if client == nil {
 		return 0, fmt.Errorf("firebase is not initialized")
 	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	iter := client.Collection(collectionName).Documents(ctx)
 	count := 0
 	for {

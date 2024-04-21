@@ -54,13 +54,8 @@ func TestMain(m *testing.M) {
 // test file, for later deletion. It is its own method for code readability, and easier reading of where the tests
 // necessarily fail.
 func TestWebhookRegistration(t *testing.T) {
-
-	errorLoad := godotenv.Load()
-
-	if errorLoad != nil {
-		os.Exit(1)
-	}
-	database.FirebaseConnect()
+	TestSetup()
+	defer TestTearDown()
 
 	//Here I am creating a webhook to perform test on.
 	WebhookRegistration := internal.Webhook{
@@ -103,7 +98,7 @@ func TestWebhookRegistration(t *testing.T) {
 	}
 
 	//Uses the request from registered response to make a new webhook registration. It is put into webhooks in firebase.
-	handlers.WebhookRegistration(rec, responseRegistration.Request, "webhooks")
+	handlers.WebhookRegistration(rec, responseRegistration.Request, database.WebhookCollection)
 
 	newurl := server.URL + "/" + WebhookRegistration.WebhookId
 	println(newurl)
@@ -119,7 +114,7 @@ func TestWebhookRegistration(t *testing.T) {
 	record := httptest.NewRecorder()
 
 	//Calls method from notification handler to get the webhook. Response is recorded to record.
-	handlers.GetWebhook(record, "webhooks", requestToGet, WebhookRegistration.WebhookId)
+	handlers.GetWebhook(record, database.WebhookCollection, requestToGet, WebhookRegistration.WebhookId)
 
 	//Instatiates assert, so that we can compare our results to what we expect.
 	asrt := assert.New(t)
@@ -136,7 +131,7 @@ func TestWebhookRegistration(t *testing.T) {
 	requestToGetBad := httptest.NewRequest(http.MethodGet, badUrl, nil)
 
 	//Trying to process the wrong content
-	handlers.GetWebhook(recordagain, "webhooks", requestToGetBad, "723kjk")
+	handlers.GetWebhook(recordagain, database.WebhookCollection, requestToGetBad, "723kjk")
 
 	//I expect the recorder should return a bad request-status, as I have written it should in the code.
 	//recorder will be measured up to this.
@@ -169,7 +164,7 @@ func TestGetWebhooks(t *testing.T) {
 	record := httptest.NewRecorder()
 
 	//Sends the recorder inn to record what response I get from running GetWebhooks method with the request made earlier
-	handlers.GetWebhooks(record, requestToGet, "webhooks")
+	handlers.GetWebhooks(record, requestToGet, database.WebhookCollection)
 
 	asser := assert.New(t)
 
@@ -189,7 +184,7 @@ func TestGetWebhooks(t *testing.T) {
 	oldNumberOfHooks := len(listOfAllHooksInDatabase)
 
 	//To double check, I also use the method created to count all the webhooks.
-	numberOfHooks, err := database.CountWebhooks("webhooks")
+	numberOfHooks, err := database.CountWebhooks(database.WebhookCollection)
 
 	//Here I am creating a webhook to perform test on.
 	newWebhook := internal.Webhook{
@@ -248,7 +243,7 @@ func TestGetWebhooks(t *testing.T) {
 		}
 
 		//Uses the request from registered response to make a new webhook registration. It is put into webhooks in firebase.
-		handlers.WebhookRegistration(rec, responseRegistration.Request, "webhooks")
+		handlers.WebhookRegistration(rec, responseRegistration.Request, database.WebhookCollection)
 
 		//Here the id of the webhook is registered in the list of webhooks created within test environment, to be deleted
 		//after test.
@@ -257,7 +252,7 @@ func TestGetWebhooks(t *testing.T) {
 	}
 
 	// New number for webhokks in database. Should be three more than what was.
-	newNumberOfWebhooks, err := database.CountWebhooks("webhooks")
+	newNumberOfWebhooks, err := database.CountWebhooks(database.WebhookCollection)
 	if err != nil {
 		t.Errorf("Error counting webhooks")
 	}
@@ -325,7 +320,7 @@ func TestGetWebhook(t *testing.T) {
 	}
 
 	//Uses the request from registered response to make a new webhook registration. It is put into webhooks in firebase.
-	handlers.WebhookRegistration(rec, responseRegistration.Request, "webhooks")
+	handlers.WebhookRegistration(rec, responseRegistration.Request, database.WebhookCollection)
 
 	newurl := server.URL + "/" + webhookRegistration.WebhookId
 
@@ -340,7 +335,7 @@ func TestGetWebhook(t *testing.T) {
 	record := httptest.NewRecorder()
 
 	//Calls method from notification handler to get the webhook. Response is recorded to record.
-	handlers.GetWebhook(record, "webhooks", requestToGet, webhookRegistration.WebhookId)
+	handlers.GetWebhook(record, database.WebhookCollection, requestToGet, webhookRegistration.WebhookId)
 
 	//Instatiates assert, so that we can compare our results to what we expect.
 	asrt := assert.New(t)
@@ -357,7 +352,7 @@ func TestGetWebhook(t *testing.T) {
 
 	//Calls method from notification handler to get the webhook. Response is recorded to record. Nonesense
 	// webhook id is passed on as parameter.
-	handlers.GetWebhook(recordNew, "webhooks", newRequestGet, "nonesense123")
+	handlers.GetWebhook(recordNew, database.WebhookCollection, newRequestGet, "nonesense123")
 
 	// As it is a bad request, recorder should return bas request, as expected.
 	asrt.Equal(http.StatusBadRequest, recordNew.Code)
@@ -365,7 +360,7 @@ func TestGetWebhook(t *testing.T) {
 	recordAnew := httptest.NewRecorder()
 
 	//Testing what happens when the GetWebhook method is called with empty webhook id.
-	handlers.GetWebhook(recordAnew, "webhooks", newRequestGet, "")
+	handlers.GetWebhook(recordAnew, database.WebhookCollection, newRequestGet, "")
 
 	//Should return StatusBadRequest, checks with recorder.
 	asrt.Equal(http.StatusBadRequest, recordAnew.Code)
@@ -411,7 +406,7 @@ func TestDeleteWebhook(t *testing.T) {
 		respondent := httptest.NewRequest(http.MethodDelete, url, nil)
 
 		//Method to test. rec records the response. respondent is the request.
-		handlers.DeleteWebhook(rec, respondent, "webhooks", id)
+		handlers.DeleteWebhook(rec, respondent, database.WebhookCollection, id)
 
 		//get-request to the url with the specified webhook is sent.
 		responseGetwebhook, err := client.Get(url)
@@ -434,7 +429,7 @@ func TestDeleteWebhook(t *testing.T) {
 		asrt.Empty(testHookDelete)
 
 		//Tries out the method for GetWebhook with if of deleted webhook. Records response in rec.
-		handlers.GetWebhook(rec, "webhooks", responseGetwebhook.Request, id)
+		handlers.GetWebhook(rec, database.WebhookCollection, responseGetwebhook.Request, id)
 
 		asrt.Equal(testHookDelete.WebhookId, "")
 		asrt.Equal(http.StatusBadRequest, rec.Code)
@@ -446,7 +441,7 @@ func TestDeleteWebhook(t *testing.T) {
 	respondent, err := client.Post(url, http.MethodDelete, nil)
 
 	//Sends the request to method, with empty webhook id.
-	handlers.DeleteWebhook(rec, respondent.Request, "webhooks", "")
+	handlers.DeleteWebhook(rec, respondent.Request, database.WebhookCollection, "")
 
 	asrt := assert.New(t)
 
