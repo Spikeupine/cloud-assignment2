@@ -48,6 +48,14 @@ type Webhook struct {
 	Calls     int    `json:"calls" firebase:"calls"`
 }
 
+type InvokeWebhook struct {
+	WebhookId string `json:"webhook_id,omitempty" firebase:"webhook_id"`
+	Url       string `json:"url" firebase:"url"`
+	Country   string `json:"iso" firebase:"iso"`
+	Event     string `json:"event,omitempty" firebase:"event"`
+	Calls     int    `json:"calls" firebase:"calls"`
+	Time      time.Time
+}
 type Status struct {
 	CountriesAPI   int    `json:"countries_api"`
 	MeteoAPI       int    `json:"meteo_api"`

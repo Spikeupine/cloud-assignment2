@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 )
 
 /*
@@ -23,10 +24,12 @@ func IncrementCallCount(w http.ResponseWriter, webhook internal.Webhook) {
 	webhook.Calls++
 
 	//Invokes webhook, which means it writes the content of the webhook to the url given in webhook.
-	invokeWebhook(webhook.Url, internal.Webhook{
+	invokeWebhook(webhook.Url, internal.InvokeWebhook{
 		WebhookId: webhook.WebhookId,
 		Country:   webhook.Country,
-		Calls:     webhook.Calls})
+		Calls:     webhook.Calls,
+		Event:     webhook.Event,
+		Time:      time.Now()})
 
 	//Uses method to update the call count on the webhook in question in its firebase collection.
 	err := database.UpdateTheCallCount(collectionNameWebhooks, webhook.WebhookId, webhook.Calls)
@@ -38,7 +41,7 @@ func IncrementCallCount(w http.ResponseWriter, webhook internal.Webhook) {
 }
 
 // invokeWebhook invokes a POST request to the webhook at url specified in registered webhook with the body data
-func invokeWebhook(url string, data internal.Webhook) {
+func invokeWebhook(url string, data internal.InvokeWebhook) {
 
 	//Makes the webhook content to json, and calls it payload.
 	payload, err := json.Marshal(data)
