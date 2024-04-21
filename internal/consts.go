@@ -9,6 +9,7 @@ const NotificationsPath = "/dashboard/v1/notifications/"
 
 // Path to registrations
 const RegistrationsPath = "/dashboard/v1/registrations/"
+const RegistrationsPath2 = "/dashboard/v1/registrations"
 
 // Path to status
 const StatusPath = "/dashboard/v1/status/"
