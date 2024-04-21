@@ -63,7 +63,7 @@ func TestWebhookRegistration(t *testing.T) {
 	//Here I am creating a webhook to perform test on.
 	WebhookRegistration := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "TestTestTest",
+		Country: "NO",
 		Event:   "REGISTER",
 	}
 
@@ -184,20 +184,20 @@ func TestGetWebhooks(t *testing.T) {
 	//Here I am creating a webhook to perform test on.
 	newWebhook := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "Test2",
+		Country: "ES",
 		Event:   "REGISTER",
 	}
 	//Here I am creating a webhook to perform test on.
 	newerWebhook := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "Test2",
+		Country: "PS",
 		Event:   "REGISTER",
 	}
 
 	//Here I am creating a webhook to perform test on.
 	newestWebhook := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "Test2",
+		Country: "DK",
 		Event:   "REGISTER",
 	}
 
@@ -278,7 +278,7 @@ func TestGetWebhook(t *testing.T) {
 	//Here I am creating a webhook to perform test on.
 	WebhookRegistration := internal.Webhook{
 		Url:     "https://webhook.site/22b1fade-ac45-431c-81a6-8f68a918b7c6",
-		Country: "TestTestTest",
+		Country: "NO",
 		Event:   "INVOKE",
 	}
 
