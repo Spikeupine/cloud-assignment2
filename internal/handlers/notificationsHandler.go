@@ -112,6 +112,7 @@ func DeleteWebhook(w http.ResponseWriter, collectionName string, webhookId strin
 		}
 	} else {
 		http.Error(w, "Error in DeleteWebhook: Id cannot be empty ", http.StatusBadRequest)
+		return
 	}
 }
 
@@ -142,10 +143,12 @@ func GetWebhook(w http.ResponseWriter, collectionName string, webhookId string) 
 	if err != nil {
 		http.Error(w, "Error when getting specified webhook: "+err.Error(), http.StatusBadRequest)
 		return
-	}
-	w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
-	err = json.NewEncoder(w).Encode(webhook)
-	if err != nil {
-		http.Error(w, "Error encoding response from getwebhooks ", http.StatusInternalServerError)
+	} else {
+		w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
+		err = json.NewEncoder(w).Encode(webhook)
+		if err != nil {
+			http.Error(w, "Error encoding response from getwebhooks ", http.StatusInternalServerError)
+			return
+		}
 	}
 }
