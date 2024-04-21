@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"assignment-2/database"
+	"assignment-2/external/router"
 	"assignment-2/internal"
 	"encoding/json"
 	"github.com/google/uuid"
@@ -54,22 +55,30 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 		return
 	}
 
-	// adds the webhook to the database via methods in firebase-
-	err := database.AddWebhookToCollection(webhook, collectionName)
-	if err != nil {
-		http.Error(w, "Error when adding webhook: "+webhook.Url+" to firebase collection "+
-			collectionName+": "+err.Error(), http.StatusFailedDependency)
+	country, errorCountry := router.GetCountriesObject("", webhook.Country)
+	if errorCountry != nil && webhook.Country != "" {
+		http.Error(w, "Error in country code of webhook to be registered :"+errorCountry.Error(), http.StatusBadRequest)
 		return
-	}
-
-	// returns webhook id as response
-	output := map[string]string{
-		"webhook_id": webhook.WebhookId,
-	}
-	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(output); err != nil {
-		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
+	} else if country.Cca2 == webhook.Country || webhook.Country == "" {
+		// adds the webhook to the database via methods in firebase-
+		err := database.AddWebhookToCollection(webhook, collectionName)
+		if err != nil {
+			http.Error(w, "Error when adding webhook: "+webhook.Url+" to firebase collection "+
+				collectionName+": "+err.Error(), http.StatusFailedDependency)
+			return
+		}
+		// returns webhook id as response
+		output := map[string]string{
+			"webhook_id": webhook.WebhookId,
+		}
+		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+		w.WriteHeader(http.StatusCreated)
+		if err := json.NewEncoder(w).Encode(output); err != nil {
+			http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		http.Error(w, "Error in country code of webhook. Webhook not registered.", http.StatusBadRequest)
 		return
 	}
 }

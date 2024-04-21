@@ -21,7 +21,6 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		pathValue := r.PathValue("id")
 		if pathValue == "" {
-			EventWebhook(w, "", "INVOKE")
 			registrations, err := GetAllRegistrations(r.Context())
 			if err != nil {
 				http.Error(w, "error retrieving data"+err.Error(), http.StatusInternalServerError)
@@ -39,7 +38,6 @@ func RegistrationsHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "error encoding document"+err.Error(), http.StatusInternalServerError)
 				return
 			}
-			EventWebhook(w, document.IsoCode, "INVOKE")
 		}
 	case http.MethodPost:
 		var dashboard internal.RegisterRequest

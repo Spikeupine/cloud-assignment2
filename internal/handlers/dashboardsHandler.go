@@ -21,11 +21,13 @@ func DashboardsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		dashboard, err := getPopulatedDashboard(id, r.Context())
+		dashboard, err := getPopulatedDashboard(id)
 		if err != nil {
 			http.Error(w, "error retrieving populated dashboard: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		//Registers calls to webhook if registered.
+		EventWebhook(w, dashboard.IsoCode, "INVOKE")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(dashboard)
