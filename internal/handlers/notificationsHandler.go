@@ -89,7 +89,6 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 
 		w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
 		err = json.NewEncoder(w).Encode(output)
-		w.WriteHeader(http.StatusCreated)
 		if err != nil {
 			http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
 			return
