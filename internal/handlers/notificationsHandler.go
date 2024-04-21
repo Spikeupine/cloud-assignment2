@@ -86,9 +86,11 @@ func WebhookRegistration(w http.ResponseWriter, r *http.Request, collectionName 
 		output := map[string]string{
 			"webhook_id": webhook.WebhookId,
 		}
-		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+
+		w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
+		err = json.NewEncoder(w).Encode(output)
 		w.WriteHeader(http.StatusCreated)
-		if err := json.NewEncoder(w).Encode(output); err != nil {
+		if err != nil {
 			http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -104,7 +106,7 @@ func DeleteWebhook(w http.ResponseWriter, collectionName string, webhookId strin
 	if webhookId != internal.Empty {
 		// deletes the webhook via database method.
 		err, sc := database.DeleteTheWebhook(collectionName, webhookId)
-		w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
+		w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
 		http.Error(w, "Successfully deleted webhook with id :"+webhookId, http.StatusOK)
 		if err != nil {
 			http.Error(w, "Error when deleting webhook with id '"+webhookId+"' :"+err.Error(), sc)
@@ -124,13 +126,12 @@ func GetWebhooks(w http.ResponseWriter, collectionName string) {
 		http.Error(w, "Error when receiveing variable that stores all the webhooks :"+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// encodes the resulting list to writer
-	w.Header().Add(internal.ApplicationJson, internal.ContentTypeJson)
-	if err := json.NewEncoder(w).Encode(webhooks); err != nil {
-		http.Error(w, "Error when encoding webhooks to user: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
 
+	w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
+	err = json.NewEncoder(w).Encode(webhooks)
+	if err != nil {
+		http.Error(w, "Error encoding response from getwebhooks ", http.StatusInternalServerError)
+	}
 }
 
 // GetWebhook retrieves one single specified webhook by retrieving it from the database by its id, and displaying it
@@ -143,10 +144,9 @@ func GetWebhook(w http.ResponseWriter, collectionName string, webhookId string) 
 		http.Error(w, "Error when getting specified webhook: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(internal.ApplicationJson, internal.ContentTypeJson)
 	err = json.NewEncoder(w).Encode(webhook)
 	if err != nil {
-		http.Error(w, "Error encoding response from getwebhook ", http.StatusInternalServerError)
+		http.Error(w, "Error encoding response from getwebhooks ", http.StatusInternalServerError)
 	}
-
 }
