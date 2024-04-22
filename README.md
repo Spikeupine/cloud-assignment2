@@ -57,7 +57,11 @@ docker pull golang
 ```
 Run the container:
 ```bash
-docker compose up -d
+docker compose -f compose.yml up -d
+```
+To see running containers use
+```bash
+docker ps 
 ```
 
 
@@ -72,12 +76,18 @@ docker compose up -d
 
 **Registrations endpoint**
 
+GET and POST
+
 ```/dashboard/v1/registrations/```
+
+GET, PUT, and DELETE
+
 ```/dashboard/v1/registrations/{id}```
 
 **Notifications endpoint**
 
 ```/dashboard/v1/notifications/```
+
 ```/dashboard/v1/notifications/{id}```
 
 **Status endpoint**
