@@ -5,5 +5,5 @@ services:
       - ./.secrets:/go/src/app/.secrets:ro
       - ./.secrets/.env:/go/src/app/.env:ro
     ports:
-      - '${PORT}:8080'
+      - '${PORT}:8080' #This port is taken from the regular .env and not the one in .secrets. Changes the public facing port
 
