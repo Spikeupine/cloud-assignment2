@@ -3,11 +3,11 @@
 ## Countries Dashboard Service
 
 ## Contributors
-Solveig Langbakk
+Solveig Langbakk - Webhooks, registrations, firebase, and testing
 
-Trygve Sollund
+Trygve Sollund - Registration, Dashboard, env, Docker and Deployment 
 
-Sofia Serine Mikkelsen
+Sofia Serine Mikkelsen - Status, Registration, Dashboard, and testing
 ***
 
 # General Setup
