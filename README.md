@@ -5,9 +5,10 @@
 ## Contributors
 Solveig Langbakk - Webhooks, registrations, firebase, and testing
 
+Sofia Serine Mikkelsen - Status, Registration, Dashboard, and testing
+
 Trygve Sollund - Registration, Dashboard, env, Docker and Deployment 
 
-Sofia Serine Mikkelsen - Status, Registration, Dashboard, and testing
 ***
 
 # General Setup
