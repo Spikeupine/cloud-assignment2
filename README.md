@@ -3,11 +3,12 @@
 ## Countries Dashboard Service
 
 ## Contributors
-Solveig Langbakk
+Solveig Langbakk - Webhooks, Registrations, Firebase, and Testing
 
-Trygve Sollund
+Sofia Serine Mikkelsen - Status, Registration, Dashboard, and Testing
 
-Sofia Serine Mikkelsen
+Trygve Sollund - Registration, Dashboard, env, Docker and Deployment 
+
 ***
 
 # General Setup
@@ -57,12 +58,16 @@ docker pull golang
 ```
 Run the container:
 ```bash
-docker compose up -d
+docker compose -f compose.yml up -d
+```
+To see running containers use
+```bash
+docker ps 
 ```
 
 
 # Endpoints
-
+Most of the boxes below are taken directly from the spesifications
 ```
 /dashboard/v1/registrations/
 /dashboard/v1/dashboards/
@@ -70,19 +75,282 @@ docker compose up -d
 /dashboard/v1/status/
 ```
 
-**Registrations endpoint**
+## Registrations endpoint
 
-```/dashboard/v1/registrations/```
-```/dashboard/v1/registrations/{id}```
 
-**Notifications endpoint**
+### Register new dashboard configuration
 
-```/dashboard/v1/notifications/```
-```/dashboard/v1/notifications/{id}```
+```http request
+Method: POST
+Path: /dashboard/v1/registrations/
+Content type: application/json
+```
+Body
+```json
+{
+   "country": "Norway",                     
+   "isoCode": "NO",                          
+   "features": {
+      "temperature": true,               
+      "precipitation": true,             
+      "capital": true,                   
+      "coordinates": true,               
+      "population": true,                
+      "area": true,                      
+      "targetCurrencies": ["DKK", "SEK"] 
+   }
+}
+```
+Response
+```json
+{
+    "id": "5a602bab-a921-4d38-9173-c1981ff02822",
+    "lastChange": "2024-02-29 12:31"
+}
 
-**Status endpoint**
+```
 
-```dashboard/v1/status/```
+
+### View a specific registered dashboard configuration
+
+
+```
+Method: GET
+Path: /dashboard/v1/registrations/{id}
+```
+Response
+```json
+{
+   "id": "5a602bab-a921-4d38-9173-c1981ff02822",
+   "country": "Norway",
+   "isoCode": "NO",
+   "features": {
+      "temperature": true,
+      "precipitation": true,
+      "capital": true,
+      "coordinates": true,
+      "population": true,
+      "area": false,
+      "targetCurrencies": ["EUR", "USD", "SEK"]
+   },
+    "lastChange": "20240229 14:07"
+}
+```
+
+
+
+### View all registered dashboard configurations
+```
+Method: GET
+Path: /dashboard/v1/registrations/
+```
+Response
+```json
+[
+   {
+      "id":"5a602bab-a921-4d38-9173-c1981ff02822",
+      "country": "Norway",
+      "isoCode": "NO",
+      "features": {
+                     "temperature": true,
+                     "precipitation": true,
+                     "capital": true,
+                     "coordinates": true,
+                     "population": true,
+                     "area": false,
+                     "targetCurrencies": ["EUR", "USD", "SEK"]
+                  }, 
+      "lastChange": "20240229 14:07"
+   },
+   {
+      "id": "56bf8e8e-330b-4f96-ac59-35cea3db897d",
+      "country": "Denmark",
+      "isoCode": "DK",
+      "features": {
+                     "temperature": false,
+                     "precipitation": true,
+                     "capital": true,
+                     "coordinates": true,
+                     "population": false,
+                     "area": true,
+                     "targetCurrencies": ["NOK", "MYR", "JPY", "EUR"]
+                  },
+       "lastChange": "20240224 08:27"
+   },
+   ...
+]
+
+```
+
+
+### Replace a specific registered dashboard configuration
+
+```
+Method: PUT
+Path: /dashboard/v1/registrations/{id}
+```
+Body
+```json
+{
+   "country": "Norway",
+   "isoCode": "NO",
+   "features": {
+                  "temperature": false, 
+                  "precipitation": true,
+                  "capital": true,
+                  "coordinates": true, 
+                  "population": true,
+                  "area": false,
+                  "targetCurrencies": ["EUR", "SEK"] 
+               }
+}
+
+```
+
+### Delete a specific registered dashboard configuration
+
+```
+Method: DELETE
+Path: /dashboard/v1/registrations/{id}
+```
+Response 
+```
+Status code: 200 
+```
+
+## Dashboard endpoint
+
+```http request
+Method: GET
+Path: /dashboard/v1/dashboards/{id}
+```
+Response 
+```json
+{
+   "id": "02073924-0015-11ef-9560-00059a3c7a00"
+   "country": "Norway",
+   "isoCode": "NO",
+   "features": {
+      "temperature": -1.2,                       
+      "precipitation": 0.80,                     
+      "capital": "Oslo",                         
+      "coordinates": {
+        "latitude": 62.0,
+        "longitude": 10.0
+      },
+      "population": 5379475,
+      "area": 323802.0,
+      "targetCurrencies": {
+        "EUR": 0.087701435,  
+        "USD": 0.095184741, 
+        "SEK": 0.97827275
+      }
+   },
+  "lastRetrieval": "20240229 18:15" 
+}
+
+```
+
+
+
+## Notifications endpoint
+
+### Registration of Webhook
+```
+Method: POST
+Path: /dashboard/v1/notifications/
+Content type: application/json
+```
+Events are:
+
+`REGISTER`
+
+`CHANGE`
+
+`DELETE`
+
+`INVOKE`
+
+
+Body
+```json
+{
+   "url": "https://localhost:8080/client/",  // URL to be invoked when event occurs
+   "country": "NO",                          // Country that is registered, or empty if all countries
+   "event": "INVOKE"                         // Event on which it is invoked
+}
+```
+response
+```js
+{
+    "id": "OIdksUDwveiwe"
+}
+```
+
+
+### Deletion of Webhook
+Method: DELETE
+Path: /dashboard/v1/notifications/{id}
+
+
+### View specific registered webhook
+```
+Method: GET
+Path: /dashboard/v1/notifications/{id}
+
+```
+```json
+{
+"id": "OIdksUDwveiwe",
+"url": "https://localhost:8080/client/",
+"country": "NO",
+"event": "INVOKE"
+}
+```
+
+### View all registered webhooks
+```
+Method: GET
+Path: /dashboard/v1/notifications/
+```
+Body
+```json
+[
+   {
+      "id": "OIdksUDwveiwe",
+      "url": "https://localhost:8080/client/",
+      "country": "NO",
+      "event": "INVOKE"
+   },
+   {
+      "webhook_id": "DiSoisivucios",
+      "url": "https://localhost:8081/anotherClient/",
+      "country": "",                                 // field can also be omitted if registered for all countries
+      "event": "REGISTER"
+   },
+   ...
+]
+```
+
+## Status endpoint
+
+```
+Method: GET
+Path: dashboard/v1/status/
+```
+Response
+```json
+{
+   "countries_api": <http status code for *REST Countries API*>,
+   "meteo_api": <http status code for *Meteo API*>, 
+   "currency_api": <http status code for *Currency API*>,
+   "notification_db": <http status code for *Notification database*>,
+   "webhooks": <number of registered webhooks>,
+   "version": "v1",
+   "uptime": <time in seconds from the last service restart>
+}
+
+```
 
 ## Services used in this project
 
