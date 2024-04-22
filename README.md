@@ -3,9 +3,9 @@
 ## Countries Dashboard Service
 
 ## Contributors
-Solveig Langbakk - Webhooks, registrations, firebase, and testing
+Solveig Langbakk - Webhooks, Registrations, Firebase, and Testing
 
-Sofia Serine Mikkelsen - Status, Registration, Dashboard, and testing
+Sofia Serine Mikkelsen - Status, Registration, Dashboard, and Testing
 
 Trygve Sollund - Registration, Dashboard, env, Docker and Deployment 
 
@@ -67,7 +67,7 @@ docker ps
 
 
 # Endpoints
-
+Most of the boxes below are taken directly from the spesifications
 ```
 /dashboard/v1/registrations/
 /dashboard/v1/dashboards/
