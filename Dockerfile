@@ -16,8 +16,7 @@ COPY ./go.mod  /go/src/app
 COPY ./go.sum /go/src/app
 RUN go mod download && go mod verify
 #
-RUN CGO_ENABLED=0 GOOS=linux
-RUN go build  -a  -o ./run ./cmd
+RUN CGO_ENABLED=0 GOOS=linux go build  -a -ldflags '-extldflags "-static"'   -o ./run ./cmd
 
 EXPOSE 8080
 CMD ["./run"]

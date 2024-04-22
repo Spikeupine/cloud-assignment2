@@ -1,9 +1,9 @@
 services:
-  demoapp:
+  dashboardservice:
     build: .
     volumes:
       - ./.secrets:/go/src/app/.secrets:ro
       - ./.secrets/.env:/go/src/app/.env:ro
     ports:
-      - '8080:8080'
+      - '${PORT}:8080'
 
