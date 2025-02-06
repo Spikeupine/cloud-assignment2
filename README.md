@@ -352,24 +352,6 @@ Response
 
 ```
 
-## Services used in this project
-
-*REST Countries API (instance hosted for this course)*
-
-Endpoint: http://129.241.150.113:8080/v3.1
-
-Documentation: http://129.241.150.113:8080/
-
-*Open-Meteo APIs (hosted externally, hence please be responsible)*
-
-Documentation: https://open-meteo.com/en/features#available-apis
-
-*Currency API*
-
-Endpoint: http://129.241.150.113:9090/currency/
-
-Documentation: http://129.241.150.113:9090/
-
 ## Task
 In this group assignment, we have to developed a REST web application in Golang 
 that provides the client with the ability to configure information dashboards that 
